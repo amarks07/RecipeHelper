@@ -1,76 +1,192 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
-      <div className="max-w-6xl mx-auto px-4 py-20">
+    <main style={{ minHeight: "100vh", backgroundColor: "#f9fafb" }}>
+      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "80px 24px" }}>
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+        <div style={{ textAlign: "center", marginBottom: "64px" }}>
+          <h1
+            style={{
+              fontSize: "48px",
+              fontWeight: "700",
+              color: "#111827",
+              marginBottom: "16px",
+            }}
+          >
             RecipeHelper
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Capture recipes from photos, manage ingredients, and organize your
-            favorite dishes — all in one place.
+          <p
+            style={{
+              fontSize: "18px",
+              color: "#6b7280",
+              maxWidth: "560px",
+              margin: "0 auto 32px",
+            }}
+          >
+            Capture recipes from photos, search by ingredient, manage and sync
+            across all your devices.
           </p>
         </div>
 
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-4xl mb-4">📸</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        {/* Features Grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "32px",
+            marginBottom: "64px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              border: "1px solid #e5e7eb",
+              padding: "32px",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>📸</div>
+            <h3
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
+                color: "#111827",
+                marginBottom: "8px",
+              }}
+            >
               Capture Recipes
             </h3>
-            <p className="text-gray-600">
-              Take a photo of any recipe and let AI extract the ingredients and
-              instructions.
+            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              Take screenshots of any recipe. Our smart OCR extracts ingredients
+              and instructions automatically.
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-4xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              border: "1px solid #e5e7eb",
+              padding: "32px",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>🔍</div>
+            <h3
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
+                color: "#111827",
+                marginBottom: "8px",
+              }}
+            >
               Search & Filter
             </h3>
-            <p className="text-gray-600">
-              Find recipes by ingredient, cuisine, or tag. Organize your
-              collection effortlessly.
+            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              Find recipes by ingredient, cuisine, or custom tags. Organize your
+              collection exactly how you want.
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-4xl mb-4">☁️</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              border: "1px solid #e5e7eb",
+              padding: "32px",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>☁️</div>
+            <h3
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
+                color: "#111827",
+                marginBottom: "8px",
+              }}
+            >
               Sync Everywhere
             </h3>
-            <p className="text-gray-600">
-              Your recipes sync across all your devices. Access them anywhere,
-              anytime.
+            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              Access your recipes on mobile and web. Everything syncs
+              automatically across devices.
             </p>
           </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="text-center">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Get Started Today
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Available for iOS and Android. Download the app and start saving
-              your favorite recipes.
-            </p>
-          </div>
+        {/* CTA Section */}
+        <div
+          style={{
+            backgroundColor: "#ecfdf5",
+            borderRadius: "12px",
+            padding: "48px 24px",
+            textAlign: "center",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "32px",
+              fontWeight: "700",
+              color: "#111827",
+              marginBottom: "16px",
+            }}
+          >
+            Ready to organize your recipes?
+          </h2>
+          <p
+            style={{
+              color: "#6b7280",
+              marginBottom: "32px",
+              fontSize: "16px",
+            }}
+          >
+            Start managing your recipes now on web or download the mobile app to capture from photos.
+          </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/app"
-              className="inline-block bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-8 rounded-lg transition"
+          <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link
+              href="/recipes"
+              style={{
+                display: "inline-block",
+                backgroundColor: "#10b981",
+                color: "#fff",
+                fontWeight: "600",
+                padding: "16px 32px",
+                borderRadius: "8px",
+                textDecoration: "none",
+                transition: "background-color 0.3s",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#059669")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#10b981")}
             >
-              Open Web App
-            </a>
+              Go to Recipes →
+            </Link>
             <a
               href="https://github.com/amarks07/RecipeHelper"
-              className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold py-3 px-8 rounded-lg transition"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                backgroundColor: "#fff",
+                color: "#111827",
+                fontWeight: "600",
+                padding: "16px 32px",
+                borderRadius: "8px",
+                textDecoration: "none",
+                border: "1px solid #e5e7eb",
+                transition: "all 0.3s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "#f3f4f6";
+                e.target.style.borderColor = "#10b981";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "#fff";
+                e.target.style.borderColor = "#e5e7eb";
+              }}
             >
               View on GitHub
             </a>
@@ -78,9 +194,16 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-20 pt-8 border-t border-gray-300">
-          <p className="text-gray-600 text-sm">
-            RecipeHelper — Built with React Native, Supabase, and Next.js
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: "80px",
+            paddingTop: "32px",
+            borderTop: "1px solid #e5e7eb",
+          }}
+        >
+          <p style={{ color: "#6b7280", fontSize: "14px" }}>
+            RecipeHelper — Capture photos • Sync devices • Organize recipes
           </p>
         </div>
       </div>
