@@ -1,0 +1,9 @@
+{
+  "name": "@recipehelper/core",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.0"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "RecipeHelper",
+    "slug": "recipehelper",
+    "version": "0.1.0",
+    "scheme": "recipehelper",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#ffffff",
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.recipehelper.app"
+    },
+    "android": {
+      "package": "com.recipehelper.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "backgroundColor": "#ffffff"
+    },
+    "experiments": {
+      "baseUrl": "/app"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow RecipeHelper to use the camera to capture recipe photos."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow RecipeHelper to access your photos to import recipes.",
+          "cameraPermission": "Allow RecipeHelper to use the camera to take recipe photos.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "recipehelper-projectid"
+      }
+    }
+  }
+}

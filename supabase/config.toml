@@ -1,0 +1,17 @@
+# Supabase configuration file
+# Reference: https://supabase.com/docs/guides/cli/config
+
+[project]
+# Project-specific configuration will be set during deployment
+
+[functions.ocr-process]
+verify_jwt = true
+
+[functions.recipe-save-from-ocr]
+verify_jwt = true
+
+[functions.recipe-image-upload]
+verify_jwt = true
+
+[functions.recipe-search]
+verify_jwt = true
