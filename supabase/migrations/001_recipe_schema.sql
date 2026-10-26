@@ -2,7 +2,6 @@
 -- Phase 1: Core recipe and user management tables
 
 -- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- Enable RLS on all tables
@@ -13,7 +12,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres, an
 -- USER DIETARY PROFILES (extends Supabase auth.users)
 -- ============================================================================
 CREATE TABLE public.user_dietary_profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   dietary_restrictions TEXT[] DEFAULT '{}', -- e.g., ['vegan', 'gluten-free']
   allergies TEXT[] DEFAULT '{}', -- e.g., ['peanuts', 'shellfish']
@@ -42,7 +41,7 @@ CREATE POLICY "Users can insert own dietary profile"
 -- RECIPES
 -- ============================================================================
 CREATE TABLE public.recipes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
@@ -84,7 +83,7 @@ CREATE POLICY "Users can delete own recipes"
 -- RECIPE INGREDIENTS
 -- ============================================================================
 CREATE TABLE public.recipe_ingredients (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   recipe_id UUID NOT NULL REFERENCES public.recipes(id) ON DELETE CASCADE,
   ingredient TEXT NOT NULL,
   quantity NUMERIC,
@@ -134,7 +133,7 @@ CREATE POLICY "Users can delete ingredients from own recipes"
 -- RECIPE INSTRUCTIONS
 -- ============================================================================
 CREATE TABLE public.recipe_instructions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   recipe_id UUID NOT NULL REFERENCES public.recipes(id) ON DELETE CASCADE,
   step TEXT NOT NULL,
   "order" INTEGER DEFAULT 0,
@@ -181,7 +180,7 @@ CREATE POLICY "Users can delete instructions from own recipes"
 -- RECIPE TAGS
 -- ============================================================================
 CREATE TABLE public.recipe_tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   recipe_id UUID NOT NULL REFERENCES public.recipes(id) ON DELETE CASCADE,
   tag_name TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -228,7 +227,7 @@ CREATE POLICY "Users can delete tags from own recipes"
 -- OCR IMPORTS (tracks OCR processing and results)
 -- ============================================================================
 CREATE TABLE public.ocr_imports (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
   raw_ocr_text TEXT,
