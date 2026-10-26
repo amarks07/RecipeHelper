@@ -119,7 +119,7 @@ export default function NewRecipePage() {
         <Link
           href="/recipes"
           style={{
-            color: "#10b981",
+            color: "#16a34a",
             textDecoration: "none",
             fontSize: "14px",
             fontWeight: "600",
@@ -137,7 +137,7 @@ export default function NewRecipePage() {
       <div style={{ maxWidth: "800px" }}>
         {/* Title */}
         <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
+          <label style={{ display: "block", fontWeight: "600", marginBottom: "6px", color: "#111827" }}>
             Title *
           </label>
           <input
@@ -148,17 +148,19 @@ export default function NewRecipePage() {
             style={{
               width: "100%",
               padding: "12px 16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid #e8e4d9",
               borderRadius: "8px",
               fontSize: "14px",
               boxSizing: "border-box",
+              backgroundColor: "#fefdfb",
+              caretColor: "#111827",
             }}
           />
         </div>
 
         {/* Description */}
         <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
+          <label style={{ display: "block", fontWeight: "600", marginBottom: "6px", color: "#111827" }}>
             Description
           </label>
           <textarea
@@ -169,10 +171,12 @@ export default function NewRecipePage() {
             style={{
               width: "100%",
               padding: "12px 16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid #e8e4d9",
               borderRadius: "8px",
               fontSize: "14px",
               boxSizing: "border-box",
+              backgroundColor: "#fefdfb",
+              caretColor: "#111827",
             }}
           />
         </div>
@@ -206,6 +210,7 @@ export default function NewRecipePage() {
                   border: "1px solid #e5e7eb",
                   borderRadius: "6px",
                   fontSize: "14px",
+                  caretColor: "#111827",
                 }}
               />
               <input
@@ -222,6 +227,7 @@ export default function NewRecipePage() {
                   border: "1px solid #e5e7eb",
                   borderRadius: "6px",
                   fontSize: "14px",
+                  caretColor: "#111827",
                 }}
               />
               <input
@@ -238,6 +244,7 @@ export default function NewRecipePage() {
                   border: "1px solid #e5e7eb",
                   borderRadius: "6px",
                   fontSize: "14px",
+                  caretColor: "#111827",
                 }}
               />
               <button
@@ -247,8 +254,8 @@ export default function NewRecipePage() {
                 }}
                 style={{
                   padding: "6px 12px",
-                  backgroundColor: "#fecaca",
-                  color: "#7f1d1d",
+                  backgroundColor: "#fee2e2",
+                  color: "#991b1b",
                   border: "none",
                   borderRadius: "6px",
                   cursor: "pointer",
@@ -272,9 +279,9 @@ export default function NewRecipePage() {
             }}
             style={{
               padding: "8px 16px",
-              backgroundColor: "#d1fae5",
-              color: "#065f46",
-              border: "none",
+              backgroundColor: "#f0fdf4",
+              color: "#16a34a",
+              border: "2px solid #16a34a",
               borderRadius: "6px",
               cursor: "pointer",
               fontSize: "14px",
@@ -292,7 +299,7 @@ export default function NewRecipePage() {
           </label>
           {form.instructions.map((instruction, idx) => (
             <div key={idx} style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
-              <span style={{ width: "24px", fontWeight: "600", color: "#10b981" }}>
+              <span style={{ width: "24px", fontWeight: "600", color: "#16a34a" }}>
                 {idx + 1}
               </span>
               <input
@@ -310,6 +317,7 @@ export default function NewRecipePage() {
                   border: "1px solid #e5e7eb",
                   borderRadius: "6px",
                   fontSize: "14px",
+                  caretColor: "#111827",
                 }}
               />
               <button
@@ -321,8 +329,8 @@ export default function NewRecipePage() {
                 }}
                 style={{
                   padding: "6px 12px",
-                  backgroundColor: "#fecaca",
-                  color: "#7f1d1d",
+                  backgroundColor: "#fee2e2",
+                  color: "#991b1b",
                   border: "none",
                   borderRadius: "6px",
                   cursor: "pointer",
@@ -343,9 +351,9 @@ export default function NewRecipePage() {
             }}
             style={{
               padding: "8px 16px",
-              backgroundColor: "#d1fae5",
-              color: "#065f46",
-              border: "none",
+              backgroundColor: "#f0fdf4",
+              color: "#16a34a",
+              border: "2px solid #16a34a",
               borderRadius: "6px",
               cursor: "pointer",
               fontSize: "14px",
@@ -358,7 +366,7 @@ export default function NewRecipePage() {
 
         {/* Tags */}
         <div style={{ marginBottom: "32px" }}>
-          <label style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
+          <label style={{ display: "block", fontWeight: "600", marginBottom: "6px", color: "#111827" }}>
             Tags (comma-separated)
           </label>
           <input
@@ -369,10 +377,12 @@ export default function NewRecipePage() {
             style={{
               width: "100%",
               padding: "12px 16px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid #e8e4d9",
               borderRadius: "8px",
               fontSize: "14px",
               boxSizing: "border-box",
+              backgroundColor: "#fefdfb",
+              caretColor: "#111827",
             }}
           />
         </div>
@@ -382,9 +392,9 @@ export default function NewRecipePage() {
           <Link
             href="/recipes"
             style={{
-              padding: "12px 24px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
+              padding: "12px 28px",
+              border: "2px solid #e8e4d9",
+              borderRadius: "50px",
               textDecoration: "none",
               color: "#111827",
               fontWeight: "600",
@@ -396,15 +406,18 @@ export default function NewRecipePage() {
             onClick={handleSave}
             disabled={isSaving}
             style={{
-              padding: "12px 24px",
-              backgroundColor: "#10b981",
+              padding: "12px 28px",
+              backgroundColor: "#16a34a",
               color: "#fff",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: "50px",
               cursor: "pointer",
               fontWeight: "600",
               opacity: isSaving ? 0.7 : 1,
+              transition: "background-color 0.3s",
             }}
+            onMouseEnter={(e) => !isSaving && (e.target.style.backgroundColor = "#15803d")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#16a34a")}
           >
             {isSaving ? "Saving..." : "Create Recipe"}
           </button>

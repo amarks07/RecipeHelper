@@ -4,19 +4,19 @@ export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require auth
-  const publicRoutes = ["/", "/auth/login", "/auth/signup"];
+  const publicRoutes = ["/", "/auth/login", "/auth/signup", "/auth/callback"];
 
   // Check if user is trying to access a protected route without auth
   const isProtectedRoute = !publicRoutes.includes(pathname);
 
-  // Get auth token from cookie
-  const authToken = request.cookies.get("sb-auth-token")?.value;
-
-  // If protected route and no token, redirect to login
-  if (isProtectedRoute && !authToken) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+  if (!isProtectedRoute) {
+    return NextResponse.next();
   }
 
+  // For protected routes, we can't check session on server side
+  // The session is stored in localStorage on the client, not in cookies
+  // So we'll allow the request through and let the client-side code handle redirects
+  // If there's no session, the client will redirect to /auth/login
   return NextResponse.next();
 }
 

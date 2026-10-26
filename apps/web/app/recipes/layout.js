@@ -1,17 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import { AuthGuard } from "../components/auth-guard";
 
 export default function RecipesLayout({ children }) {
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb" }}>
+    <AuthGuard>
+      <div style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)" }}>
       {/* Header */}
       <header
         style={{
           backgroundColor: "#fff",
-          borderBottom: "1px solid #e5e7eb",
+          borderBottom: "2px solid #e8e4d9",
           padding: "20px 0",
           position: "sticky",
           top: 0,
           zIndex: 50,
+          backdropFilter: "blur(10px)",
         }}
       >
         <div
@@ -27,10 +32,11 @@ export default function RecipesLayout({ children }) {
           <Link
             href="/recipes"
             style={{
-              fontSize: "24px",
-              fontWeight: "700",
-              color: "#10b981",
+              fontSize: "28px",
+              fontWeight: "400",
+              color: "#16a34a",
               textDecoration: "none",
+              fontFamily: "'Fontdiner Swanky', cursive",
             }}
           >
             RecipeHelper
@@ -40,33 +46,42 @@ export default function RecipesLayout({ children }) {
             <Link
               href="/recipes"
               style={{
-                color: "#6b7280",
+                color: "#666",
                 textDecoration: "none",
                 fontSize: "14px",
                 fontWeight: "500",
+                transition: "color 0.3s",
               }}
+              onMouseEnter={(e) => (e.target.style.color = "#16a34a")}
+              onMouseLeave={(e) => (e.target.style.color = "#666")}
             >
               Recipes
             </Link>
             <Link
               href="/recipes/new"
               style={{
-                color: "#6b7280",
+                color: "#666",
                 textDecoration: "none",
                 fontSize: "14px",
                 fontWeight: "500",
+                transition: "color 0.3s",
               }}
+              onMouseEnter={(e) => (e.target.style.color = "#16a34a")}
+              onMouseLeave={(e) => (e.target.style.color = "#666")}
             >
               New Recipe
             </Link>
             <Link
               href="/profile"
               style={{
-                color: "#6b7280",
+                color: "#666",
                 textDecoration: "none",
                 fontSize: "14px",
                 fontWeight: "500",
+                transition: "color 0.3s",
               }}
+              onMouseEnter={(e) => (e.target.style.color = "#16a34a")}
+              onMouseLeave={(e) => (e.target.style.color = "#666")}
             >
               Profile
             </Link>
@@ -88,8 +103,8 @@ export default function RecipesLayout({ children }) {
       {/* Footer */}
       <footer
         style={{
-          backgroundColor: "#f3f4f6",
-          borderTop: "1px solid #e5e7eb",
+          backgroundColor: "#fff",
+          borderTop: "2px solid #e8e4d9",
           padding: "40px 24px",
           marginTop: "80px",
         }}
@@ -99,16 +114,16 @@ export default function RecipesLayout({ children }) {
             maxWidth: "1280px",
             margin: "0 auto",
             textAlign: "center",
-            color: "#6b7280",
+            color: "#999",
             fontSize: "14px",
           }}
         >
           <p>
-            RecipeHelper — Manage recipes across all your devices with
-            Supabase
+            RecipeHelper — Manage recipes across all your devices
           </p>
         </div>
       </footer>
     </div>
+    </AuthGuard>
   );
 }

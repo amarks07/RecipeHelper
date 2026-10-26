@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { getDeviceType } from "../../utils/device-detection";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -17,6 +18,14 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Android users can't access the web app
+    const device = getDeviceType();
+    if (device.isAndroid) {
+      router.push("/");
+    }
+  }, [router]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -55,33 +64,88 @@ export default function SignupPage() {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (err) {
+      setError(err.message || "Failed to sign up with Google");
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div>
-      <div style={{ marginBottom: "32px", textAlign: "center" }}>
-        <h1
+    <div style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+      <div style={{ maxWidth: "420px", width: "100%" }}>
+        <div style={{ marginBottom: "40px", textAlign: "center" }}>
+          <h1
+            style={{
+              fontSize: "36px",
+              fontWeight: "400",
+              color: "#16a34a",
+              marginBottom: "12px",
+              fontFamily: "'Fontdiner Swanky', cursive",
+              letterSpacing: "0px",
+            }}
+          >
+            Create Account
+          </h1>
+          <p style={{ color: "#666", fontSize: "14px" }}>
+            Start managing your recipes
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleSignup}
           style={{
-            fontSize: "32px",
-            fontWeight: "700",
-            color: "#111827",
-            marginBottom: "8px",
+            backgroundColor: "#fff",
+            borderRadius: "32px",
+            border: "2px solid #e8e4d9",
+            padding: "40px",
+            boxShadow: "0 4px 20px rgba(74, 222, 128, 0.1)",
           }}
         >
-          Create Account
-        </h1>
-        <p style={{ color: "#6b7280", fontSize: "14px" }}>
-          Start managing your recipes with RecipeHelper
-        </p>
-      </div>
+        {/* Google Sign Up */}
+        <button
+          type="button"
+          onClick={handleGoogleSignUp}
+          disabled={isLoading}
+          style={{
+            width: "100%",
+            padding: "14px 16px",
+            backgroundColor: "#f0fdf4",
+            border: "2px solid #e8e4d9",
+            borderRadius: "50px",
+            fontWeight: "600",
+            cursor: "pointer",
+            opacity: isLoading ? 0.7 : 1,
+            marginBottom: "20px",
+            transition: "all 0.3s",
+            color: "#333",
+            fontSize: "15px",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#dcfce7")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#f0fdf4")}
+        >
+          {isLoading ? "…" : "Continue with Google"}
+        </button>
 
-      <form
-        onSubmit={handleSignup}
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #e5e7eb",
-          padding: "32px",
-        }}
-      >
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
+          <span style={{ margin: "0 12px", color: "#999", fontSize: "12px" }}>or</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
+        </div>
+
         {/* Email */}
         <div style={{ marginBottom: "20px" }}>
           <label
@@ -201,47 +265,35 @@ export default function SignupPage() {
           disabled={isLoading}
           style={{
             width: "100%",
-            padding: "12px 16px",
-            backgroundColor: "#10b981",
+            padding: "14px 16px",
+            backgroundColor: "#16a34a",
             color: "#fff",
             border: "none",
-            borderRadius: "8px",
+            borderRadius: "50px",
             fontWeight: "600",
             cursor: "pointer",
             opacity: isLoading ? 0.7 : 1,
-            marginBottom: "16px",
-            transition: "opacity 0.3s",
+            marginBottom: "20px",
+            transition: "all 0.3s",
+            fontSize: "15px",
           }}
+          onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = "#15803d")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#16a34a")}
         >
           {isLoading ? "Creating account..." : "Create Account"}
         </button>
 
         {/* Sign In Link */}
-        <div style={{ textAlign: "center", fontSize: "14px", color: "#6b7280" }}>
+        <div style={{ textAlign: "center", fontSize: "14px", color: "#666" }}>
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            style={{ color: "#10b981", textDecoration: "none", fontWeight: "600" }}
+            style={{ color: "#16a34a", textDecoration: "none", fontWeight: "600" }}
           >
             Sign in
           </Link>
         </div>
       </form>
-
-      {/* Info */}
-      <div
-        style={{
-          backgroundColor: "#ecfdf5",
-          border: "1px solid #d1fae5",
-          borderRadius: "8px",
-          padding: "16px",
-          marginTop: "24px",
-          fontSize: "13px",
-          color: "#065f46",
-        }}
-      >
-        <strong>Privacy:</strong> We'll send you a confirmation email. Your recipes are always private
-        and synced securely.
       </div>
     </div>
   );

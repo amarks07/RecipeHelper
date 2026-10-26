@@ -2,9 +2,11 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { supabase } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 
 export function LoginScreen({ navigation }) {
   const { tokens } = useTheme();
+  const { signInWithGoogle } = useGoogleAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +58,39 @@ export function LoginScreen({ navigation }) {
         >
           Welcome back to RecipeHelper
         </Text>
+      </View>
+
+      {/* Google Sign In */}
+      <TouchableOpacity
+        onPress={signInWithGoogle}
+        disabled={isLoading}
+        style={{
+          backgroundColor: tokens.surface,
+          borderColor: tokens.line,
+          borderWidth: 1,
+          borderRadius: 8,
+          paddingVertical: 14,
+          alignItems: "center",
+          opacity: isLoading ? 0.7 : 1,
+          marginBottom: 20,
+        }}
+      >
+        <Text
+          style={{
+            color: tokens.text,
+            fontWeight: "600",
+            fontSize: 16,
+          }}
+        >
+          {isLoading ? "…" : "Continue with Google"}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Divider */}
+      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
+        <View style={{ flex: 1, height: 1, backgroundColor: tokens.line }} />
+        <Text style={{ marginHorizontal: 12, color: tokens.textDim, fontSize: 12 }}>or</Text>
+        <View style={{ flex: 1, height: 1, backgroundColor: tokens.line }} />
       </View>
 
       {/* Form */}

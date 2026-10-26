@@ -1,15 +1,63 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+import { AuthGuard } from "../components/auth-guard";
 
-export default function ProfilePage() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
+function ProfilePageContent() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setIsLoading(false);
+    };
+    getUser();
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <p style={{ color: "#6b7280" }}>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto" }}>
       <div style={{ marginBottom: "40px" }}>
-        <h1 style={{ fontSize: "36px", fontWeight: "700", color: "#111827" }}>
+        <Link
+          href="/recipes"
+          style={{
+            color: "#16a34a",
+            textDecoration: "none",
+            fontSize: "14px",
+            fontWeight: "600",
+            marginBottom: "16px",
+            display: "inline-block",
+          }}
+        >
+          ← Back to recipes
+        </Link>
+        <h1 style={{ fontSize: "36px", fontWeight: "700", color: "#111827", marginTop: "16px" }}>
           Profile
         </h1>
         <p style={{ color: "#6b7280", marginTop: "8px" }}>
@@ -19,71 +67,38 @@ export default function ProfilePage() {
 
       <div
         style={{
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #e5e7eb",
+          backgroundColor: "#fefdfb",
+          borderRadius: "32px",
+          border: "2px solid #e8e4d9",
           padding: "32px",
         }}
       >
-        {!isSignedIn ? (
-          <div style={{ textAlign: "center" }}>
-            <p style={{ color: "#6b7280", marginBottom: "20px" }}>
-              Sign in to sync your recipes across devices and access exclusive features.
-            </p>
-            <button
-              onClick={() => setIsSignedIn(true)}
-              style={{
-                padding: "12px 24px",
-                backgroundColor: "#10b981",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600",
-              }}
-            >
-              Sign In
-            </button>
-          </div>
-        ) : (
+        {user ? (
           <div>
             <div style={{ marginBottom: "24px" }}>
               <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>
                 Account
               </h2>
               <p style={{ color: "#6b7280", fontSize: "14px" }}>
-                user@example.com
+                {user.email}
               </p>
             </div>
 
             <div style={{ marginBottom: "24px" }}>
               <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>
-                Preferences
+                Info
               </h2>
-              <div style={{ marginBottom: "12px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <input type="checkbox" defaultChecked />
-                  <span style={{ color: "#6b7280", fontSize: "14px" }}>
-                    Email notifications for recipe suggestions
-                  </span>
-                </label>
-              </div>
-              <div>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <input type="checkbox" defaultChecked />
-                  <span style={{ color: "#6b7280", fontSize: "14px" }}>
-                    Allow recipe syncing across devices
-                  </span>
-                </label>
-              </div>
+              <p style={{ color: "#6b7280", fontSize: "14px" }}>
+                Signed in via {user.app_metadata?.provider || "email"}
+              </p>
             </div>
 
             <button
-              onClick={() => setIsSignedIn(false)}
+              onClick={handleSignOut}
               style={{
                 padding: "8px 16px",
-                backgroundColor: "#fecaca",
-                color: "#7f1d1d",
+                backgroundColor: "#fee2e2",
+                color: "#991b1b",
                 border: "none",
                 borderRadius: "6px",
                 cursor: "pointer",
@@ -94,6 +109,28 @@ export default function ProfilePage() {
               Sign Out
             </button>
           </div>
+        ) : (
+          <div style={{ textAlign: "center" }}>
+            <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+              Not signed in
+            </p>
+            <Link
+              href="/auth/login"
+              style={{
+                display: "inline-block",
+                padding: "12px 28px",
+                backgroundColor: "#16a34a",
+                color: "#fff",
+                border: "none",
+                borderRadius: "50px",
+                cursor: "pointer",
+                fontWeight: "600",
+                textDecoration: "none",
+              }}
+            >
+              Sign In
+            </Link>
+          </div>
         )}
       </div>
 
@@ -101,7 +138,7 @@ export default function ProfilePage() {
         style={{
           marginTop: "40px",
           padding: "20px",
-          backgroundColor: "#f3f4f6",
+          backgroundColor: "#f5f1e8",
           borderRadius: "8px",
           textAlign: "center",
         }}
@@ -114,7 +151,7 @@ export default function ProfilePage() {
           style={{
             display: "inline-block",
             padding: "8px 16px",
-            backgroundColor: "#10b981",
+            backgroundColor: "#16a34a",
             color: "#fff",
             borderRadius: "6px",
             textDecoration: "none",
@@ -126,5 +163,13 @@ export default function ProfilePage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <AuthGuard>
+      <ProfilePageContent />
+    </AuthGuard>
   );
 }

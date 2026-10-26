@@ -100,31 +100,51 @@ export default function RecipesPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: "40px" }}>
-        <h1 style={{ fontSize: "36px", fontWeight: "700", color: "#111827" }}>
-          Recipes
+      <div style={{ marginBottom: "40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", margin: 0 }}>
+          Your Recipes
         </h1>
-        <p style={{ color: "#6b7280", marginTop: "8px" }}>
-          Manage and organize your favorite recipes
-        </p>
+        <Link
+          href="/recipes/new"
+          style={{
+            padding: "12px 28px",
+            backgroundColor: "#16a34a",
+            color: "#fff",
+            borderRadius: "50px",
+            textDecoration: "none",
+            fontWeight: "600",
+            fontSize: "14px",
+            transition: "background-color 0.3s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#15803d")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#16a34a")}
+        >
+          + Add Recipe
+        </Link>
       </div>
 
       {/* Search Bar */}
-      <div style={{ marginBottom: "24px" }}>
+      <div style={{ marginBottom: "32px" }}>
         <input
           type="text"
-          placeholder="Search recipes by title or ingredient..."
+          placeholder="Search recipes..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{
             width: "100%",
-            padding: "12px 16px",
-            fontSize: "14px",
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            backgroundColor: "#fff",
+            padding: "14px 18px",
+            fontSize: "15px",
+            border: "2px solid #e8e4d9",
+            borderRadius: "10px",
+            backgroundColor: "#fefdfb",
+            color: "#111827",
             boxSizing: "border-box",
+            cursor: "text",
+            caretColor: "#111827",
+            transition: "border-color 0.3s",
           }}
+          onFocus={(e) => (e.target.style.borderColor = "#16a34a")}
+          onBlur={(e) => (e.target.style.borderColor = "#e8e4d9")}
         />
       </div>
 
@@ -146,12 +166,12 @@ export default function RecipesPage() {
                   padding: "6px 12px",
                   borderRadius: "6px",
                   border: selectedTags.includes(tag)
-                    ? "2px solid #10b981"
-                    : "1px solid #e5e7eb",
+                    ? "2px solid #16a34a"
+                    : "1px solid #e8e4d9",
                   backgroundColor: selectedTags.includes(tag)
-                    ? "#ecfdf5"
+                    ? "#f0fdf4"
                     : "#fff",
-                  color: selectedTags.includes(tag) ? "#10b981" : "#6b7280",
+                  color: selectedTags.includes(tag) ? "#16a34a" : "#6b7280",
                   fontSize: "12px",
                   fontWeight: "500",
                   cursor: "pointer",
@@ -167,8 +187,8 @@ export default function RecipesPage() {
 
       {/* Recipe Grid */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 20px" }}>
-          <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+        <div style={{ textAlign: "center", padding: "80px 20px" }}>
+          <p style={{ color: "#666", marginBottom: "20px", fontSize: "16px" }}>
             {recipes.length === 0
               ? "No recipes yet. Create one to get started!"
               : "No recipes match your search."}
@@ -178,13 +198,16 @@ export default function RecipesPage() {
               href="/recipes/new"
               style={{
                 display: "inline-block",
-                padding: "12px 24px",
-                backgroundColor: "#10b981",
+                padding: "12px 28px",
+                backgroundColor: "#16a34a",
                 color: "#fff",
-                borderRadius: "8px",
+                borderRadius: "50px",
                 textDecoration: "none",
                 fontWeight: "600",
+                transition: "background-color 0.3s",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#15803d")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#16a34a")}
             >
               Create First Recipe
             </Link>
@@ -193,10 +216,9 @@ export default function RecipesPage() {
       ) : (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "24px",
+            columnCount: 3,
+            columnGap: "24px",
+            columnFill: "balance",
           }}
         >
           {filtered.map((recipe) => (
@@ -204,22 +226,27 @@ export default function RecipesPage() {
               key={recipe.id}
               href={`/recipes/${recipe.id}`}
               style={{
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-                border: "1px solid #e5e7eb",
+                backgroundColor: "#fefdfb",
+                borderRadius: "32px",
+                border: "2px solid #e8e4d9",
                 overflow: "hidden",
-                transition: "all 0.3s",
+                transition: "all 0.3s ease",
                 cursor: "pointer",
                 textDecoration: "none",
                 color: "inherit",
+                boxShadow: "0 4px 12px rgba(74, 222, 128, 0.08)",
+                breakInside: "avoid",
+                marginBottom: "24px",
+                display: "block",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow =
-                  "0 4px 12px rgba(0, 0, 0, 0.1)";
+                  "0 12px 24px rgba(74, 222, 128, 0.15)";
                 e.currentTarget.style.transform = "translateY(-4px)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(74, 222, 128, 0.08)";
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
@@ -237,13 +264,14 @@ export default function RecipesPage() {
               )}
 
               {/* Content */}
-              <div style={{ padding: "16px" }}>
+              <div style={{ padding: "20px" }}>
                 <h3
                   style={{
                     fontSize: "18px",
-                    fontWeight: "600",
+                    fontWeight: "700",
                     color: "#111827",
-                    marginBottom: "8px",
+                    marginBottom: "12px",
+                    lineHeight: "1.3",
                   }}
                 >
                   {recipe.title}
@@ -253,13 +281,14 @@ export default function RecipesPage() {
                   <p
                     style={{
                       fontSize: "13px",
-                      color: "#6b7280",
-                      marginBottom: "12px",
+                      color: "#666",
+                      marginBottom: "14px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       display: "-webkit-box",
                       WebkitLineClamp: 2,
                       WebkitBoxOrient: "vertical",
+                      lineHeight: "1.4",
                     }}
                   >
                     {recipe.description}
@@ -267,46 +296,62 @@ export default function RecipesPage() {
                 )}
 
                 {/* Metadata */}
-                <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+                <div style={{ display: "flex", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
                   {recipe.ingredients && recipe.ingredients.length > 0 && (
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      🧂 {recipe.ingredients.length} ingredients
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        color: "#16a34a",
+                        backgroundColor: "#f0fdf4",
+                        padding: "4px 10px",
+                        borderRadius: "12px",
+                      }}
+                    >
+                      {recipe.ingredients.length} ingredients
                     </span>
                   )}
                   {recipe.prepTime && (
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      ⏱️ {recipe.prepTime}m prep
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        color: "#16a34a",
+                        backgroundColor: "#f0fdf4",
+                        padding: "4px 10px",
+                        borderRadius: "12px",
+                      }}
+                    >
+                      {recipe.prepTime}m prep
                     </span>
                   )}
                 </div>
 
                 {/* Tags */}
                 {recipe.tags && recipe.tags.length > 0 && (
-                  <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-                    {recipe.tags.slice(0, 2).map((tag, idx) => (
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    {recipe.tags.slice(0, 3).map((tag, idx) => (
                       <span
                         key={idx}
                         style={{
-                          fontSize: "11px",
-                          backgroundColor: "#ecfdf5",
-                          color: "#10b981",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
+                          fontSize: "12px",
+                          backgroundColor: "#f0fdf4",
+                          color: "#16a34a",
+                          padding: "4px 10px",
+                          borderRadius: "12px",
                           fontWeight: "500",
                         }}
                       >
                         {tag}
                       </span>
                     ))}
-                    {recipe.tags.length > 2 && (
+                    {recipe.tags.length > 3 && (
                       <span
                         style={{
-                          fontSize: "11px",
-                          color: "#6b7280",
+                          fontSize: "12px",
+                          color: "#999",
                           padding: "4px 0",
                         }}
                       >
-                        +{recipe.tags.length - 2} more
+                        +{recipe.tags.length - 3}
                       </span>
                     )}
                   </div>

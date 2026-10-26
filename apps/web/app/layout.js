@@ -19,6 +19,14 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Fontdiner+Swanky&display=swap" rel="stylesheet" />
+        <style>{`
+          * {
+            --app-font: 'Fontdiner Swanky', cursive;
+          }
+        `}</style>
+      </head>
       <body>{children}</body>
     </html>
   );
