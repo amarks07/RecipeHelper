@@ -1,5 +1,5 @@
 import { View, Text, FlatList, TextInput, TouchableOpacity } from "react-native";
-import { Search, Plus } from "lucide-react-native";
+import { Search, Plus, Camera } from "lucide-react-native";
 import { useState, useMemo } from "react";
 import { RecipeCard } from "./RecipeCard";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -9,6 +9,7 @@ export function RecipesListView({
   onAddRecipe,
   onSelectRecipe,
   onDeleteRecipe,
+  onStartOCR,
 }) {
   const { tokens } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
@@ -184,11 +185,63 @@ export function RecipesListView({
           )}
           contentContainerStyle={{
             padding: 16,
-            paddingBottom: 80,
+            paddingBottom: 100,
           }}
           scrollEventThrottle={16}
         />
       )}
+
+      {/* Floating Action Buttons */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 20,
+          right: 20,
+          gap: 12,
+        }}
+      >
+        {/* OCR Button */}
+        <TouchableOpacity
+          onPress={onStartOCR}
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: tokens.accent,
+            justifyContent: "center",
+            alignItems: "center",
+            elevation: 4,
+            shadowColor: tokens.accent,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+          }}
+        >
+          <Camera size={24} color={tokens.onAccent} />
+        </TouchableOpacity>
+
+        {/* Add Recipe Button */}
+        <TouchableOpacity
+          onPress={onAddRecipe}
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: tokens.surface,
+            borderColor: tokens.accent,
+            borderWidth: 2,
+            justifyContent: "center",
+            alignItems: "center",
+            elevation: 4,
+            shadowColor: tokens.text,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+          }}
+        >
+          <Plus size={24} color={tokens.accent} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

@@ -19,12 +19,17 @@ export function RecipeListScreen({ navigation }) {
     deleteRecipe(recipeId);
   };
 
+  const handleStartOCR = () => {
+    navigation.navigate("RecipeOCR");
+  };
+
   return (
     <RecipesListView
       recipes={recipes}
       onAddRecipe={handleAddRecipe}
       onSelectRecipe={handleSelectRecipe}
       onDeleteRecipe={handleDeleteRecipe}
+      onStartOCR={handleStartOCR}
     />
   );
 }
