@@ -36,7 +36,7 @@ export default function RecipesLayout({ children }) {
             RecipeHelper
           </Link>
 
-          <nav style={{ display: "flex", gap: "32px" }}>
+          <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
             <Link
               href="/recipes"
               style={{

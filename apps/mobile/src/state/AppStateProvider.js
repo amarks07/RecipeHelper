@@ -7,7 +7,7 @@ const AppStateContext = createContext();
 
 /**
  * Root app state provider
- * Manages: recipes, user session, theme preference
+ * Manages: recipes, user session, theme preference, auth
  * Follows Barrow's pattern: persisted local state + cloud sync
  */
 export function AppStateProvider({ children }) {
@@ -16,6 +16,7 @@ export function AppStateProvider({ children }) {
   const [recipesHydrated, setRecipesHydrated] = useState(false);
   const [session, setSession] = useState(null);
   const [sessionHydrated, setSessionHydrated] = useState(false);
+  const [user, setUser] = useState(null);
   const [dietaryProfile, setDietaryProfile] = useState({
     dietaryRestrictions: [],
     allergies: [],
@@ -52,7 +53,7 @@ export function AppStateProvider({ children }) {
     })();
   }, []);
 
-  // Restore Supabase session
+  // Restore Supabase session and set up auth listener
   useEffect(() => {
     if (!supabase) {
       setSessionHydrated(true);
@@ -65,6 +66,7 @@ export function AppStateProvider({ children }) {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
         setSession(currentSession);
+        setUser(currentSession?.user || null);
         setSessionHydrated(true);
       } catch (error) {
         console.error("Failed to restore session:", error);
@@ -72,11 +74,17 @@ export function AppStateProvider({ children }) {
       }
     })();
 
-    // Listen for auth changes
+    // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
+      setUser(newSession?.user || null);
+
+      // Clear recipes on logout
+      if (event === "SIGNED_OUT") {
+        setRecipes([]);
+      }
     });
 
     return () => subscription?.unsubscribe();
@@ -106,15 +114,23 @@ export function AppStateProvider({ children }) {
     ).catch((error) => console.error("Failed to persist dietary profile:", error));
   }, [dietaryProfile]);
 
+  const handleSignOut = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+  };
+
   const value = {
     // Recipes
     recipes,
     setRecipes,
     recipesHydrated,
 
-    // Session
+    // Session & Auth
     session,
     sessionHydrated,
+    user,
+    handleSignOut,
 
     // Theme
     theme,
