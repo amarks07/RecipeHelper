@@ -49,12 +49,19 @@ export function OCRProcessingScreen({ navigation, route }) {
             }
           );
 
+          console.log(`OCR Response for image ${i + 1}:`, { data, error: ocrError });
+
           if (ocrError) throw ocrError;
+
+          if (!data) {
+            console.warn(`No data returned for image ${i + 1}`);
+            continue;
+          }
 
           results.push(data);
           setOcrResults([...results]);
         } catch (imgError) {
-          console.warn(`Failed to process image ${i + 1}:`, imgError);
+          console.error(`Failed to process image ${i + 1}:`, imgError);
           // Continue with next image even if one fails
         }
       }
