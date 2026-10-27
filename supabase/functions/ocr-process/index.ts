@@ -163,35 +163,32 @@ serve(async (req: Request) => {
     } else {
       console.log("Vision API key not configured, returning test OCR text");
       // Placeholder with sample recipe data for testing
-      ocrText = `
-        Chocolate Chip Cookies
+      // Note: OCR text should have clear section headers for proper parsing
+      ocrText = `Ingredients
+2 1/4 cups all-purpose flour
+1 tsp baking soda
+1 tsp salt
+1 cup butter, softened
+3/4 cup granulated sugar
+3/4 cup packed brown sugar
+2 large eggs
+2 tsp vanilla extract
+2 cups chocolate chips
 
-        Ingredients:
-        2 1/4 cups all-purpose flour
-        1 tsp baking soda
-        1 tsp salt
-        1 cup butter, softened
-        3/4 cup granulated sugar
-        3/4 cup packed brown sugar
-        2 large eggs
-        2 tsp vanilla extract
-        2 cups chocolate chips
+Instructions
+Preheat oven to 375°F
+In small bowl, combine flour, baking soda and salt
+In large bowl, beat butter and sugars until creamy
+Add eggs and vanilla to butter mixture and beat well
+Gradually stir in flour mixture
+Mix in chocolate chips
+Drop rounded tablespoon of dough onto ungreased baking sheets
+Bake for 9 to 12 minutes or until golden brown
+Cool on baking sheets for 1 minute, then move to wire racks
 
-        Instructions:
-        Preheat oven to 375°F.
-        In small bowl, combine flour, baking soda and salt.
-        In large bowl, beat butter and sugars until creamy.
-        Add eggs and vanilla to butter mixture and beat well.
-        Gradually stir in flour mixture.
-        Mix in chocolate chips.
-        Drop rounded tablespoon of dough onto ungreased baking sheets.
-        Bake for 9 to 12 minutes or until golden brown.
-        Cool on baking sheets for 1 minute, then move to wire racks.
-
-        Prep Time: 15 minutes
-        Cook Time: 10 minutes
-        Servings: 24 cookies
-      `;
+Prep Time: 15 minutes
+Cook Time: 10 minutes
+Servings: 24 cookies`;
     }
 
     // Parse OCR output into structured format
@@ -214,8 +211,19 @@ serve(async (req: Request) => {
         };
       });
 
+    // Extract title from first meaningful line (before any section headers)
+    let title = "Untitled Recipe";
+    const lines = ocrText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      if (!["ingredient", "instruction", "direction", "method", "step", "prep time", "cook time", "servings"].some(k => lower.includes(k))) {
+        title = line;
+        break;
+      }
+    }
+
     const result: OCRResult = {
-      title: "Untitled Recipe", // Would extract from OCR
+      title,
       servings: metadata.servings,
       prepTime: metadata.prepTime,
       cookTime: metadata.cookTime,
