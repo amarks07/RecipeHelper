@@ -47,11 +47,12 @@
           "cameraPermission": "Allow RecipeHelper to use the camera to take recipe photos.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {
-        "projectId": "047b69e8-be3b-4fa4-96f2-a93c4d5464f5"
+        "projectId": "prj_MFdrTHgEN5mmjw0a2TUDvZtQxmMw"
       }
     }
   }
