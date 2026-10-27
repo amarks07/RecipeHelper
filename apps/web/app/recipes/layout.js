@@ -12,7 +12,7 @@ export default function RecipesLayout({ children }) {
         style={{
           backgroundColor: "#fff",
           borderBottom: "2px solid #e8e4d9",
-          padding: "20px 0",
+          padding: "12px 0",
           position: "sticky",
           top: 0,
           zIndex: 50,
@@ -23,10 +23,12 @@ export default function RecipesLayout({ children }) {
           style={{
             maxWidth: "1280px",
             margin: "0 auto",
-            padding: "0 24px",
+            padding: "0 16px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            gap: "16px",
+            flexWrap: "wrap",
           }}
         >
           <Link
@@ -42,7 +44,7 @@ export default function RecipesLayout({ children }) {
             Nibble
           </Link>
 
-          <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
+          <nav style={{ display: "flex", gap: "clamp(16px, 3vw, 32px)", alignItems: "center", flexWrap: "wrap" }}>
             <Link
               href="/recipes"
               style={{

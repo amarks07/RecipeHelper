@@ -116,6 +116,16 @@ export default function Home() {
           direction: ltr;
           color: #fff;
         }
+        @media (max-width: 768px) {
+          .material-icon {
+            font-size: 36px;
+          }
+        }
+        @media (max-width: 480px) {
+          .material-icon {
+            font-size: 28px;
+          }
+        }
       `}</style>
 
       <main
@@ -128,14 +138,14 @@ export default function Home() {
           overflow: "hidden",
         }}
       >
-        {/* Get Started Button - Top Right */}
+        {/* Get Started Button - Top Right/Center on mobile */}
         <Link
           href="/auth/login"
           style={{
             position: "absolute",
-            top: "32px",
-            right: "32px",
-            padding: "12px 32px",
+            top: "16px",
+            right: "16px",
+            padding: "10px 24px",
             backgroundColor: "#16a34a",
             color: "#fff",
             borderRadius: "50px",
@@ -158,18 +168,20 @@ export default function Home() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "80px 24px",
+            padding: "40px 24px",
+            minHeight: "300px",
           }}
         >
           <h1
             style={{
-              fontSize: "96px",
+              fontSize: "clamp(48px, 12vw, 96px)",
               fontWeight: "400",
               color: "#16a34a",
               margin: 0,
               fontFamily: "'Fontdiner Swanky', cursive",
               letterSpacing: "0px",
               textShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+              textAlign: "center",
             }}
           >
             Nibble
@@ -179,64 +191,59 @@ export default function Home() {
         {/* Features Sections with Dividers */}
         <div
           style={{
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
             width: "100%",
-            paddingBottom: "80px",
+            paddingBottom: "40px",
+            gap: "0",
           }}
         >
           {/* Section 1 */}
           <div
             style={{
-              flex: 1,
-              padding: "40px 32px",
+              padding: "32px 24px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
+              borderRight: "1px solid #16a34a",
             }}
           >
             <span className="material-icon" style={{ color: "#16a34a" }}>photo_camera</span>
-            <h3 style={{ color: "#16a34a", fontSize: "20px", fontWeight: "600", marginBottom: "12px" }}>
+            <h3 style={{ color: "#16a34a", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
               Capture
             </h3>
-            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+            <p style={{ color: "#6b7280", fontSize: "clamp(13px, 3vw, 14px)", lineHeight: "1.5" }}>
               Take screenshots of recipes. Smart OCR extracts ingredients and instructions.
             </p>
           </div>
 
-          {/* Divider */}
-          <div style={{ width: "1px", backgroundColor: "#16a34a" }} />
-
           {/* Section 2 */}
           <div
             style={{
-              flex: 1,
-              padding: "40px 32px",
+              padding: "32px 24px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
+              borderRight: "1px solid #16a34a",
             }}
           >
             <span className="material-icon" style={{ color: "#16a34a" }}>search</span>
-            <h3 style={{ color: "#16a34a", fontSize: "20px", fontWeight: "600", marginBottom: "12px" }}>
+            <h3 style={{ color: "#16a34a", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
               Organize
             </h3>
-            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+            <p style={{ color: "#6b7280", fontSize: "clamp(13px, 3vw, 14px)", lineHeight: "1.5" }}>
               Search by ingredient. Filter by tags. Organize your collection perfectly.
             </p>
           </div>
 
-          {/* Divider */}
-          <div style={{ width: "1px", backgroundColor: "#16a34a" }} />
-
           {/* Section 3 */}
           <div
             style={{
-              flex: 1,
-              padding: "40px 32px",
+              padding: "32px 24px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -245,10 +252,10 @@ export default function Home() {
             }}
           >
             <span className="material-icon" style={{ color: "#16a34a" }}>cloud_sync</span>
-            <h3 style={{ color: "#16a34a", fontSize: "20px", fontWeight: "600", marginBottom: "12px" }}>
+            <h3 style={{ color: "#16a34a", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
               Sync
             </h3>
-            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+            <p style={{ color: "#6b7280", fontSize: "clamp(13px, 3vw, 14px)", lineHeight: "1.5" }}>
               Access on mobile and web. Everything syncs automatically across devices.
             </p>
           </div>

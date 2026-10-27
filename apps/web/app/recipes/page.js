@@ -186,6 +186,14 @@ export default function RecipesPage() {
       )}
 
       {/* Recipe Grid */}
+      <style>{`
+        @media (max-width: 1200px) {
+          .recipe-grid { column-count: 2 !important; }
+        }
+        @media (max-width: 768px) {
+          .recipe-grid { column-count: 1 !important; }
+        }
+      `}</style>
       {filtered.length === 0 ? (
         <div style={{ textAlign: "center", padding: "80px 20px" }}>
           <p style={{ color: "#666", marginBottom: "20px", fontSize: "16px" }}>
@@ -215,6 +223,7 @@ export default function RecipesPage() {
         </div>
       ) : (
         <div
+          className="recipe-grid"
           style={{
             columnCount: 3,
             columnGap: "24px",
