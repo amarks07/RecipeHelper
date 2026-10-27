@@ -11,21 +11,10 @@ BEGIN
   END IF;
 
   -- Delete user's data (cascades will handle related records)
-  DELETE FROM public.ocr_imports WHERE user_id = user_id;
-  DELETE FROM public.recipe_tags WHERE recipe_id IN (
-    SELECT id FROM public.recipes WHERE user_id = user_id
-  );
-  DELETE FROM public.recipe_instructions WHERE recipe_id IN (
-    SELECT id FROM public.recipes WHERE user_id = user_id
-  );
-  DELETE FROM public.recipe_ingredients WHERE recipe_id IN (
-    SELECT id FROM public.recipes WHERE user_id = user_id
-  );
+  -- Foreign keys with ON DELETE CASCADE will automatically clean up related records
   DELETE FROM public.recipes WHERE user_id = user_id;
   DELETE FROM public.user_dietary_profiles WHERE user_id = user_id;
-
-  -- Delete auth user
-  DELETE FROM auth.users WHERE id = user_id;
+  DELETE FROM public.ocr_imports WHERE user_id = user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
