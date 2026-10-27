@@ -6,7 +6,7 @@ import { AuthGuard } from "../components/auth-guard";
 export default function RecipesLayout({ children }) {
   return (
     <AuthGuard>
-      <div style={{ minHeight: "100vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Header */}
       <header
         style={{
@@ -17,6 +17,7 @@ export default function RecipesLayout({ children }) {
           top: 0,
           zIndex: 50,
           backdropFilter: "blur(10px)",
+          flexShrink: 0,
         }}
       >
         <div
@@ -97,6 +98,8 @@ export default function RecipesLayout({ children }) {
           maxWidth: "1280px",
           margin: "0 auto",
           padding: "40px 24px",
+          flex: 1,
+          width: "100%",
         }}
       >
         {children}
@@ -108,7 +111,8 @@ export default function RecipesLayout({ children }) {
           backgroundColor: "#fff",
           borderTop: "2px solid #e8e4d9",
           padding: "40px 24px",
-          marginTop: "80px",
+          marginTop: "auto",
+          flexShrink: 0,
         }}
       >
         <div
