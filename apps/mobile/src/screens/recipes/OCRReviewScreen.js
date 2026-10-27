@@ -104,7 +104,7 @@ export function OCRReviewScreen({ navigation, route }) {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-        {/* Image Tiles */}
+          {/* Image Tiles */}
         {images && images.length > 0 && (
           <View style={{ marginBottom: 20 }}>
             <Text
@@ -164,6 +164,7 @@ export function OCRReviewScreen({ navigation, route }) {
             </View>
           </View>
         )}
+        </ScrollView>
 
         {/* Image Viewer Modal */}
         <Modal
@@ -513,7 +514,6 @@ export function OCRReviewScreen({ navigation, route }) {
         >
           💡 To edit ingredients and instructions in detail, you can save this recipe and edit it on the recipe detail screen.
         </Text>
-      </ScrollView>
 
       {/* Action Buttons */}
       <View
