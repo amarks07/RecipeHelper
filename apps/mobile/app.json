@@ -2,6 +2,7 @@
   "expo": {
     "name": "RecipeHelper",
     "slug": "recipehelper",
+    "owner": "amarks07",
     "version": "0.1.0",
     "scheme": "recipehelper",
     "orientation": "portrait",
