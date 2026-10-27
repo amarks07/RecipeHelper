@@ -164,71 +164,7 @@ export function OCRReviewScreen({ navigation, route }) {
             </View>
           </View>
         )}
-        </ScrollView>
 
-        {/* Image Viewer Modal */}
-        <Modal
-          visible={imageViewerVisible}
-          animationType="fade"
-          transparent={true}
-          onRequestClose={() => setImageViewerVisible(false)}
-        >
-          <View style={{ flex: 1, backgroundColor: "#000" }}>
-            {/* Close Button */}
-            <View
-              style={{
-                position: "absolute",
-                top: insets.top + 12,
-                right: 12,
-                zIndex: 10,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => setImageViewerVisible(false)}
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  borderRadius: 24,
-                  padding: 8,
-                }}
-              >
-                <X size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Image */}
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 16,
-              }}
-            >
-              <Image
-                source={{ uri: images[selectedImageIndex]?.uri }}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  resizeMode: "contain",
-                }}
-              />
-            </View>
-
-            {/* Counter */}
-            <View
-              style={{
-                backgroundColor: "rgba(0, 0, 0, 0.7)",
-                paddingVertical: 12,
-                paddingHorizontal: 16,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: "#fff", fontSize: 14 }}>
-                Image {selectedImageIndex + 1} of {images.length}
-              </Text>
-            </View>
-          </View>
-        </Modal>
         {/* Confidence Banner */}
         {validation && validation.issues.length > 0 && (
           <View
@@ -514,6 +450,71 @@ export function OCRReviewScreen({ navigation, route }) {
         >
           💡 To edit ingredients and instructions in detail, you can save this recipe and edit it on the recipe detail screen.
         </Text>
+        </ScrollView>
+
+        {/* Image Viewer Modal */}
+        <Modal
+          visible={imageViewerVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setImageViewerVisible(false)}
+        >
+          <View style={{ flex: 1, backgroundColor: "#000" }}>
+            {/* Close Button */}
+            <View
+              style={{
+                position: "absolute",
+                top: insets.top + 12,
+                right: 12,
+                zIndex: 10,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setImageViewerVisible(false)}
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: 24,
+                  padding: 8,
+                }}
+              >
+                <X size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Image */}
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 16,
+              }}
+            >
+              <Image
+                source={{ uri: images[selectedImageIndex]?.uri }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
+
+            {/* Counter */}
+            <View
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 14 }}>
+                Image {selectedImageIndex + 1} of {images.length}
+              </Text>
+            </View>
+          </View>
+        </Modal>
 
       {/* Action Buttons */}
       <View
