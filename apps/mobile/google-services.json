@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "377821029127",
+    "project_id": "nibble-f0ac2",
+    "storage_bucket": "nibble-f0ac2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377821029127:android:b0bfde9f16b026333c5ba2",
+        "android_client_info": {
+          "package_name": "com.nibble.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdVMfySjgKyul52XDisjZ-pnWyE37V9h0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

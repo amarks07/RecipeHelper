@@ -1,6 +1,7 @@
 import { View, Text, FlatList, TextInput, TouchableOpacity } from "react-native";
 import { Search, Plus, Camera } from "lucide-react-native";
 import { useState, useMemo } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RecipeCard } from "./RecipeCard";
 import { useTheme } from "../../theme/ThemeProvider";
 
@@ -11,6 +12,7 @@ export function RecipesListView({
   onDeleteRecipe,
   onStartOCR,
 }) {
+  const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
@@ -44,7 +46,7 @@ export function RecipesListView({
   }, [recipes, searchQuery, selectedTags]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <View style={{ flex: 1, backgroundColor: tokens.bg, paddingTop: insets.top }}>
       {/* Header */}
       <View
         style={{
@@ -195,7 +197,7 @@ export function RecipesListView({
       <View
         style={{
           position: "absolute",
-          bottom: 20,
+          bottom: 20 + insets.bottom,
           right: 20,
           gap: 12,
         }}

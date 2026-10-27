@@ -77,6 +77,7 @@ export function OCRProcessingScreen({ navigation, route }) {
           mergedRecipe: merged,
           validation,
           imageCount: images.length,
+          images, // Pass images so they can be viewed in review screen
         });
       }, 500);
     } catch (err) {

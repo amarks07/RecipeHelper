@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Alert } from "react-native";
-import { LogOut } from "lucide-react-native";
+import { LogOut, Trash2 } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppState } from "../../state/AppStateProvider";
 import { useTheme } from "../../theme/ThemeProvider";
+import { supabase } from "../../lib/supabase-client";
 
 export function ProfileSettingsScreen() {
+  const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
   const { user, handleSignOut } = useAppState();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLogout = async () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+    Alert.alert("Sign Out", "Your recipes will be saved. Sign out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Sign Out",
@@ -20,6 +24,7 @@ export function ProfileSettingsScreen() {
           try {
             await handleSignOut();
           } catch (error) {
+            console.error("Sign out error:", error);
             Alert.alert("Error", "Failed to sign out");
           } finally {
             setIsSigningOut(false);
@@ -29,8 +34,44 @@ export function ProfileSettingsScreen() {
     ]);
   };
 
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "This will permanently delete your account and all your recipes. This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              const { error } = await supabase.rpc("delete_user_account");
+              if (error) throw error;
+              Alert.alert("Account Deleted", "Your account has been deleted.");
+              await handleSignOut();
+            } catch (error) {
+              console.error("Delete account error:", error);
+              Alert.alert("Error", error.message || "Failed to delete account");
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg, padding: 16 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: tokens.bg,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+      }}
+    >
+      <View style={{ flex: 1, padding: 16 }}>
       {/* Header */}
       <Text
         style={{
@@ -161,6 +202,7 @@ export function ProfileSettingsScreen() {
           justifyContent: "center",
           gap: 8,
           opacity: isSigningOut ? 0.7 : 1,
+          marginBottom: 12,
         }}
       >
         <LogOut size={18} color="#fff" />
@@ -175,6 +217,35 @@ export function ProfileSettingsScreen() {
         </Text>
       </TouchableOpacity>
 
+      {/* Delete Account Button */}
+      <TouchableOpacity
+        onPress={handleDeleteAccount}
+        disabled={isDeleting}
+        style={{
+          backgroundColor: "#dc2626",
+          borderRadius: 8,
+          paddingVertical: 14,
+          paddingHorizontal: 16,
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 8,
+          opacity: isDeleting ? 0.7 : 1,
+          marginBottom: 24,
+        }}
+      >
+        <Trash2 size={18} color="#fff" />
+        <Text
+          style={{
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: 14,
+          }}
+        >
+          {isDeleting ? "Deleting..." : "Delete Account"}
+        </Text>
+      </TouchableOpacity>
+
       {/* Info */}
       <View
         style={{
@@ -183,7 +254,6 @@ export function ProfileSettingsScreen() {
           borderWidth: 1,
           borderRadius: 8,
           padding: 12,
-          marginTop: 24,
         }}
       >
         <Text
@@ -196,6 +266,7 @@ export function ProfileSettingsScreen() {
           <Text style={{ fontWeight: "600" }}>Tip:</Text> Your recipes are protected by
           Supabase's Row Level Security. Only you can access your data.
         </Text>
+      </View>
       </View>
     </View>
   );

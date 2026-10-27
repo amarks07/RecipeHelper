@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 
 export function SignupScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
   const { signInWithGoogle } = useGoogleAuth();
   const [email, setEmail] = useState("");
@@ -48,7 +50,7 @@ export function SignupScreen({ navigation }) {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tokens.bg }}>
-      <View style={{ padding: 20, paddingTop: 40 }}>
+      <View style={{ padding: 20, paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }}>
         {/* Header */}
         <View style={{ marginBottom: 40 }}>
           <Text

@@ -6,8 +6,11 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Image,
+  Dimensions,
 } from "react-native";
-import { ChevronLeft, AlertCircle } from "lucide-react-native";
+import { ChevronLeft, AlertCircle, ChevronRight } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppState } from "../../state/AppStateProvider";
 import { useRecipeActions } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -17,11 +20,14 @@ import { useTheme } from "../../theme/ThemeProvider";
  * User can correct errors and adjust recipe details
  */
 export function OCRReviewScreen({ navigation, route }) {
-  const { mergedRecipe, validation, imageCount } = route.params || {};
+  const { mergedRecipe, validation, imageCount, images } = route.params || {};
+  const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
   const { recipes, setRecipes } = useAppState();
   const { createRecipe } = useRecipeActions(recipes, setRecipes);
   const [isSaving, setIsSaving] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const screenWidth = Dimensions.get("window").width;
 
   const [editedRecipe, setEditedRecipe] = useState({
     title: mergedRecipe?.title || "",
@@ -56,7 +62,7 @@ export function OCRReviewScreen({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg }}>
+    <View style={{ flex: 1, backgroundColor: tokens.bg, paddingTop: insets.top }}>
       {/* Header */}
       <View
         style={{
@@ -89,6 +95,76 @@ export function OCRReviewScreen({ navigation, route }) {
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* Image Gallery */}
+        {images && images.length > 0 && (
+          <View style={{ marginBottom: 20 }}>
+            <View
+              style={{
+                position: "relative",
+                backgroundColor: tokens.surface,
+                borderRadius: 12,
+                overflow: "hidden",
+                marginBottom: 8,
+              }}
+            >
+              <Image
+                source={{ uri: images[currentImageIndex].uri }}
+                style={{
+                  width: screenWidth - 32,
+                  height: 300,
+                  resizeMode: "cover",
+                }}
+              />
+              {images.length > 1 && (
+                <>
+                  <TouchableOpacity
+                    onPress={() =>
+                      setCurrentImageIndex(
+                        currentImageIndex === 0 ? images.length - 1 : currentImageIndex - 1
+                      )
+                    }
+                    style={{
+                      position: "absolute",
+                      left: 8,
+                      top: "50%",
+                      transform: [{ translateY: -12 }],
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      borderRadius: 24,
+                      padding: 8,
+                    }}
+                  >
+                    <ChevronLeft size={24} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      setCurrentImageIndex((currentImageIndex + 1) % images.length)
+                    }
+                    style={{
+                      position: "absolute",
+                      right: 8,
+                      top: "50%",
+                      transform: [{ translateY: -12 }],
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      borderRadius: 24,
+                      padding: 8,
+                    }}
+                  >
+                    <ChevronRight size={24} color="#fff" />
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+            <Text
+              style={{
+                fontSize: 12,
+                color: tokens.textDim,
+                textAlign: "center",
+              }}
+            >
+              Image {currentImageIndex + 1} of {images.length}
+            </Text>
+          </View>
+        )}
         {/* Confidence Banner */}
         {validation && validation.issues.length > 0 && (
           <View
@@ -380,7 +456,7 @@ export function OCRReviewScreen({ navigation, route }) {
       <View
         style={{
           position: "absolute",
-          bottom: 0,
+          bottom: insets.bottom,
           left: 0,
           right: 0,
           backgroundColor: tokens.surface,

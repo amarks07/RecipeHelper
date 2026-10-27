@@ -41,23 +41,35 @@ export function useGoogleAuth() {
 
       // Extract tokens from hash fragment (implicit flow)
       console.log("Redirect URL received:", result.url);
-      const { hash } = Linking.parse(result.url);
+      const hash = result.url.split('#')[1]; // Extract hash fragment manually
+      console.log("Hash value:", hash);
 
       if (!hash) {
+        console.log("ERROR: No hash found!");
         Alert.alert("Error", "Google sign-in didn't work. Please try again.");
         return;
       }
 
       // Parse hash fragment to extract tokens
+      console.log("Creating URLSearchParams with:", hash);
       const params = new URLSearchParams(hash);
+      console.log("URLSearchParams created");
+
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
       const expiresAt = params.get("expires_at");
 
-      console.log("Tokens received:", { accessToken: !!accessToken, refreshToken: !!refreshToken });
+      console.log("Tokens extracted:", {
+        accessTokenLength: accessToken?.length,
+        refreshTokenLength: refreshToken?.length,
+        expiresAt,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken
+      });
 
       if (!accessToken) {
         const errorDesc = params.get("error_description") || params.get("error");
+        console.log("No access token. Error:", errorDesc);
         if (errorDesc) {
           Alert.alert("Error", errorDesc);
         } else {
@@ -67,14 +79,19 @@ export function useGoogleAuth() {
       }
 
       // Set session with tokens directly
+      console.log("Calling setSession...");
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
-        expires_at: parseInt(expiresAt),
       });
 
+      console.log("setSession response:", { error: sessionError?.message });
+
       if (sessionError) {
+        console.error("Session error:", sessionError);
         Alert.alert("Error", sessionError.message || "Failed to complete sign-in");
+      } else {
+        console.log("Session set successfully!");
       }
       // On success, auth state listener in AppStateProvider handles session update
     } catch (err) {

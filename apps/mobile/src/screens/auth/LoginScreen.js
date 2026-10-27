@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 
 export function LoginScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
   const { signInWithGoogle } = useGoogleAuth();
   const [email, setEmail] = useState("");
@@ -35,7 +37,16 @@ export function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg, justifyContent: "center", padding: 20 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: tokens.bg,
+        justifyContent: "center",
+        paddingHorizontal: 20,
+        paddingTop: insets.top + 20,
+        paddingBottom: insets.bottom + 20,
+      }}
+    >
       {/* Header */}
       <View style={{ marginBottom: 40 }}>
         <Text
@@ -56,7 +67,7 @@ export function LoginScreen({ navigation }) {
             textAlign: "center",
           }}
         >
-          Welcome back to Nibble
+          Welcome back to nibble
         </Text>
       </View>
 
