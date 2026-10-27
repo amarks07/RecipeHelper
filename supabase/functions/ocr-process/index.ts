@@ -198,6 +198,9 @@ serve(async (req: Request) => {
     const { ingredients: ingredientTexts, instructions } = parseSections(ocrText);
     const metadata = extractMetadata(ocrText);
 
+    console.log("Parsed sections:", { ingredientCount: ingredientTexts.length, instructionCount: instructions.length });
+    console.log("Sample ingredients:", ingredientTexts.slice(0, 2));
+
     // Parse individual ingredients
     const ingredients: IngredientResult[] = ingredientTexts
       .filter(text => text.length > 0)
