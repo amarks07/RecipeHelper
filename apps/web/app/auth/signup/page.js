@@ -93,7 +93,7 @@ export default function SignupPage() {
               fontWeight: "400",
               color: "#16a34a",
               marginBottom: "12px",
-              fontFamily: "'Fontdiner Swanky', cursive",
+              fontFamily: "'Finger Paint', cursive",
               letterSpacing: "0px",
             }}
           >

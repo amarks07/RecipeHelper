@@ -77,14 +77,14 @@ export default function LoginPage() {
               fontWeight: "400",
               color: "#16a34a",
               marginBottom: "12px",
-              fontFamily: "'Fontdiner Swanky', cursive",
+              fontFamily: "'Finger Paint', cursive",
               letterSpacing: "0px",
             }}
           >
             Sign In
           </h1>
           <p style={{ color: "#666", fontSize: "14px" }}>
-            Welcome back to Nibble
+            Welcome back to nibble
           </p>
         </div>
 

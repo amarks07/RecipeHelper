@@ -38,10 +38,10 @@ export default function RecipesLayout({ children }) {
               fontWeight: "400",
               color: "#16a34a",
               textDecoration: "none",
-              fontFamily: "'Fontdiner Swanky', cursive",
+              fontFamily: "'Finger Paint', cursive",
             }}
           >
-            Nibble
+            nibble
           </Link>
 
           <nav style={{ display: "flex", gap: "clamp(16px, 3vw, 32px)", alignItems: "center", flexWrap: "wrap" }}>
@@ -121,7 +121,7 @@ export default function RecipesLayout({ children }) {
           }}
         >
           <p>
-            Nibble — Manage recipes across all your devices
+            nibble — Manage recipes across all your devices
           </p>
         </div>
       </footer>
