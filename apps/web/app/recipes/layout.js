@@ -6,7 +6,7 @@ import { AuthGuard } from "../components/auth-guard";
 export default function RecipesLayout({ children }) {
   return (
     <AuthGuard>
-      <div style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)" }}>
+      <div style={{ minHeight: "100vh" }}>
       {/* Header */}
       <header
         style={{

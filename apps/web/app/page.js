@@ -131,7 +131,6 @@ export default function Home() {
       <main
         style={{
           minHeight: "100vh",
-          background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)",
           display: "flex",
           flexDirection: "column",
           position: "relative",
