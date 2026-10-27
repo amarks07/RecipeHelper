@@ -31,9 +31,13 @@ export function useGoogleAuth() {
       }
 
       // Extract authorization code from redirect
+      console.log("Redirect URL received:", result.url);
       const { queryParams } = Linking.parse(result.url);
+      console.log("Query params:", queryParams);
+
       if (!queryParams?.code) {
         const description = queryParams?.error_description || queryParams?.error;
+        console.log("Error description:", description);
         if (description) {
           Alert.alert("Error", description);
         } else {
