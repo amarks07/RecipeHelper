@@ -47,7 +47,7 @@ export function LoginScreen({ navigation }) {
             marginBottom: 8,
           }}
         >
-          Sign In
+          nibble
         </Text>
         <Text
           style={{

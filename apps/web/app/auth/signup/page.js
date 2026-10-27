@@ -97,7 +97,7 @@ export default function SignupPage() {
               letterSpacing: "0px",
             }}
           >
-            Create Account
+            nibble
           </h1>
           <p style={{ color: "#666", fontSize: "14px" }}>
             Start managing your recipes

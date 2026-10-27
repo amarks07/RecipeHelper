@@ -81,7 +81,7 @@ export default function LoginPage() {
               letterSpacing: "0px",
             }}
           >
-            Sign In
+            nibble
           </h1>
           <p style={{ color: "#666", fontSize: "14px" }}>
             Welcome back to nibble
