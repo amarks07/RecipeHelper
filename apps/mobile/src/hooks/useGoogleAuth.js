@@ -14,10 +14,15 @@ export function useGoogleAuth() {
 
       // On native, open browser tab for OAuth
       const redirectTo = Linking.createURL("auth-callback");
+      console.log("Redirect URL:", redirectTo);
+
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo, skipBrowserRedirect: true },
       });
+
+      console.log("OAuth URL:", data?.url);
+      console.log("OAuth Error:", oauthError?.message);
 
       if (oauthError || !data?.url) {
         Alert.alert("Error", oauthError?.message || "Failed to start Google sign-in");
@@ -25,8 +30,12 @@ export function useGoogleAuth() {
       }
 
       // Open browser to complete OAuth flow
+      console.log("Opening browser...");
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      console.log("Browser result:", result);
+
       if (result.type !== "success" || !result.url) {
+        console.log("User cancelled or no URL returned");
         return; // User cancelled
       }
 
