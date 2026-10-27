@@ -563,6 +563,7 @@ export function OCRReviewScreen({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
+      </View>
     </KeyboardAvoidingView>
   );
 }
