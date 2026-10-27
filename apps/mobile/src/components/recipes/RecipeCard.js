@@ -1,11 +1,26 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import { ChefHat, Flame, Clock } from "lucide-react-native";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { ChefHat, Flame, Clock, Trash2 } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
 
 export function RecipeCard({ recipe, onPress, onDelete }) {
   const { tokens } = useTheme();
 
   const ingredientCount = recipe.ingredients?.length || 0;
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Recipe",
+      `Delete "${recipe.title}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => onDelete && onDelete(recipe.id),
+        },
+      ]
+    );
+  };
 
   return (
     <TouchableOpacity
@@ -56,33 +71,43 @@ export function RecipeCard({ recipe, onPress, onDelete }) {
         </Text>
       )}
 
-      <View style={{ flexDirection: "row", gap: 16, marginBottom: 12 }}>
-        {ingredientCount > 0 && (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <ChefHat size={16} color={tokens.accent} />
-            <Text style={{ fontSize: 12, color: tokens.textDim }}>
-              {ingredientCount} ingredients
-            </Text>
-          </View>
-        )}
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+        <View style={{ flexDirection: "row", gap: 16, flex: 1 }}>
+          {ingredientCount > 0 && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <ChefHat size={16} color={tokens.accent} />
+              <Text style={{ fontSize: 12, color: tokens.textDim }}>
+                {ingredientCount} ingredients
+              </Text>
+            </View>
+          )}
 
-        {recipe.prepTime && (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <Clock size={16} color={tokens.accent} />
-            <Text style={{ fontSize: 12, color: tokens.textDim }}>
-              {recipe.prepTime}m prep
-            </Text>
-          </View>
-        )}
+          {recipe.prepTime && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Clock size={16} color={tokens.accent} />
+              <Text style={{ fontSize: 12, color: tokens.textDim }}>
+                {recipe.prepTime}m prep
+              </Text>
+            </View>
+          )}
 
-        {recipe.cookTime && (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <Flame size={16} color={tokens.accent} />
-            <Text style={{ fontSize: 12, color: tokens.textDim }}>
-              {recipe.cookTime}m cook
-            </Text>
-          </View>
-        )}
+          {recipe.cookTime && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Flame size={16} color={tokens.accent} />
+              <Text style={{ fontSize: 12, color: tokens.textDim }}>
+                {recipe.cookTime}m cook
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Delete Button */}
+        <TouchableOpacity
+          onPress={handleDelete}
+          style={{ padding: 4, marginLeft: 8 }}
+        >
+          <Trash2 size={18} color={tokens.danger} />
+        </TouchableOpacity>
       </View>
 
       {recipe.tags && recipe.tags.length > 0 && (
