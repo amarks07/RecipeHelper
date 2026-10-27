@@ -57,7 +57,7 @@ export function SignupScreen({ navigation }) {
             style={{
               fontSize: 36,
               fontWeight: "400",
-              fontFamily: "Finger Paint",
+              fontFamily: "FingerPaint",
               color: tokens.accent,
               textAlign: "center",
               marginBottom: 8,

@@ -53,7 +53,7 @@ export function LoginScreen({ navigation }) {
           style={{
             fontSize: 48,
             fontWeight: "400",
-            fontFamily: "Finger Paint",
+            fontFamily: "FingerPaint",
             color: tokens.accent,
             textAlign: "center",
             marginBottom: 8,

@@ -29,9 +29,7 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "https://fonts.gstatic.com/s/fingerpaint/v17/VdGfAZRgH7kz8wvu433Fcm3SE7g.ttf"
-          ]
+          "fonts": ["./assets/fonts/FingerPaint-Regular.ttf"]
         }
       ],
       "expo-splash-screen",
