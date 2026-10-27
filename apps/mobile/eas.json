@@ -1,27 +1,29 @@
 {
-  "projectId": "recipehelper-projectid",
-  "owner": "amarks07",
   "cli": {
-    "version": ">= 5.0.0"
+    "version": ">= 13.0.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://jqvclvsxuwofombtiugs.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxdmNsdnN4dXdvZm9tYnRpdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMzExMTYsImV4cCI6MjEwODYwNzExNn0.eAgzhziyDh5aayyeZPgsrnUMw3nSElcRoc6PpL6Bb90"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      }
-    },
-    "production": {
-      "android": {
-        "buildType": "aab"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://jqvclvsxuwofombtiugs.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxdmNsdnN4dXdvZm9tYnRpdWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMzExMTYsImV4cCI6MjEwODYwNzExNn0.eAgzhziyDh5aayyeZPgsrnUMw3nSElcRoc6PpL6Bb90"
       }
     }
-  },
-  "submit": {
-    "production": {}
   }
 }
