@@ -39,26 +39,42 @@ export function useGoogleAuth() {
         return; // User cancelled
       }
 
-      // Extract authorization code from redirect
+      // Extract tokens from hash fragment (implicit flow)
       console.log("Redirect URL received:", result.url);
-      const { queryParams } = Linking.parse(result.url);
-      console.log("Query params:", queryParams);
+      const { hash } = Linking.parse(result.url);
 
-      if (!queryParams?.code) {
-        const description = queryParams?.error_description || queryParams?.error;
-        console.log("Error description:", description);
-        if (description) {
-          Alert.alert("Error", description);
+      if (!hash) {
+        Alert.alert("Error", "Google sign-in didn't work. Please try again.");
+        return;
+      }
+
+      // Parse hash fragment to extract tokens
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+      const expiresAt = params.get("expires_at");
+
+      console.log("Tokens received:", { accessToken: !!accessToken, refreshToken: !!refreshToken });
+
+      if (!accessToken) {
+        const errorDesc = params.get("error_description") || params.get("error");
+        if (errorDesc) {
+          Alert.alert("Error", errorDesc);
         } else {
           Alert.alert("Error", "Google sign-in didn't work. Please try again.");
         }
         return;
       }
 
-      // Exchange code for session
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(queryParams.code);
-      if (exchangeError) {
-        Alert.alert("Error", exchangeError.message || "Failed to complete sign-in");
+      // Set session with tokens directly
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_at: parseInt(expiresAt),
+      });
+
+      if (sessionError) {
+        Alert.alert("Error", sessionError.message || "Failed to complete sign-in");
       }
       // On success, auth state listener in AppStateProvider handles session update
     } catch (err) {
