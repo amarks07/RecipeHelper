@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { supabase } from "@recipehelper/core";
+import { supabase } from "../lib/supabase-client";
 import { RECIPES_CODEC } from "@recipehelper/core";
 
 const AppStateContext = createContext();
