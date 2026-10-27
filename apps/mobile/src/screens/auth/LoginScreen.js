@@ -56,7 +56,7 @@ export function LoginScreen({ navigation }) {
             textAlign: "center",
           }}
         >
-          Welcome back to RecipeHelper
+          Welcome back to Nibble
         </Text>
       </View>
 

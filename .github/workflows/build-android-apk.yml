@@ -61,7 +61,7 @@ jobs:
             gh release upload "$TAG" apps/mobile/recipehelper.apk --clobber
           else
             gh release create "$TAG" apps/mobile/recipehelper.apk \
-              --title "RecipeHelper Android v${{ steps.version.outputs.version }}" \
+              --title "Nibble Android v${{ steps.version.outputs.version }}" \
               --notes "Automated Android build from commit ${{ github.sha }}."
           fi
 

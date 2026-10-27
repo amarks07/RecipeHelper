@@ -1,6 +1,6 @@
-# RecipeHelper Setup Guide
+# Nibble Setup Guide
 
-Complete step-by-step guide to get RecipeHelper running with Supabase.
+Complete step-by-step guide to get Nibble running with Supabase.
 
 ## Prerequisites
 
@@ -45,7 +45,7 @@ Save these - you'll need them for `.env` files.
 
 ```bash
 # Navigate to project root
-cd C:\github\RecipeHelper
+cd C:\github\Nibble
 
 # Install Supabase CLI globally
 npm install -g supabase
@@ -97,8 +97,8 @@ Edge Functions handle OCR processing and search.
 ### 3.1 Deploy functions
 
 ```bash
-# Navigate to RecipeHelper root
-cd C:\github\RecipeHelper
+# Navigate to Nibble root
+cd C:\github\Nibble
 
 # Deploy OCR processing function
 supabase functions deploy ocr-process
@@ -417,7 +417,7 @@ Once everything is set up:
    git push origin main
    
    # Go to vercel.com/new
-   # Import RecipeHelper repo
+   # Import Nibble repo
    # Set environment variables
    # Deploy!
    ```
@@ -453,4 +453,4 @@ Common error messages:
 
 ---
 
-**You're now ready to run RecipeHelper with a live Supabase backend!** 🚀
+**You're now ready to run Nibble with a live Supabase backend!** 🚀

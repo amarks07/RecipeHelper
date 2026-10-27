@@ -1,30 +1,24 @@
 {
   "expo": {
-    "name": "RecipeHelper",
-    "slug": "recipehelper",
+    "name": "Nibble",
+    "slug": "nibble",
     "owner": "amarks07",
     "version": "0.1.0",
-    "scheme": "recipehelper",
+    "scheme": "nibble",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#ffffff",
-    "splash": {
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.recipehelper.app"
+      "bundleIdentifier": "com.nibble.app"
     },
     "android": {
-      "package": "com.recipehelper.app",
-      "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/android-icon-foreground.png"
-      }
+      "package": "com.nibble.app",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "backgroundColor": "#ffffff"
     },
@@ -37,14 +31,14 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow RecipeHelper to use the camera to capture recipe photos."
+          "cameraPermission": "Allow Nibble to use the camera to capture recipe photos."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow RecipeHelper to access your photos to import recipes.",
-          "cameraPermission": "Allow RecipeHelper to use the camera to take recipe photos.",
+          "photosPermission": "Allow Nibble to access your photos to import recipes.",
+          "cameraPermission": "Allow Nibble to use the camera to take recipe photos.",
           "microphonePermission": false
         }
       ],
@@ -52,7 +46,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "prj_MFdrTHgEN5mmjw0a2TUDvZtQxmMw"
+        "projectId": "c1ceb9e8-164c-4c9f-a29f-281536556e81"
       }
     }
   }

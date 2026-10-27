@@ -40,7 +40,7 @@ export default function Home() {
       <main style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)", padding: "20px" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto", paddingTop: "40px" }}>
           <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", marginBottom: "8px" }}>
-            RecipeHelper
+            Nibble
           </h1>
           <p style={{ color: "#6b7280", marginBottom: "40px", fontSize: "16px" }}>
             Capture recipes from photos. Sync across devices.
@@ -51,10 +51,10 @@ export default function Home() {
               📱 Install the App
             </h2>
             <p style={{ color: "#6b7280", marginBottom: "24px", lineHeight: "1.6" }}>
-              RecipeHelper works best as a native Android app. Download it now to capture recipes from your phone camera.
+              Nibble works best as a native Android app. Download it now to capture recipes from your phone camera.
             </p>
             <button
-              onClick={() => window.open("https://github.com/amarks07/RecipeHelper/releases", "_blank")}
+              onClick={() => window.open("https://github.com/amarks07/Nibble/releases", "_blank")}
               style={{
                 width: "100%",
                 padding: "16px 24px",
@@ -172,7 +172,7 @@ export default function Home() {
               textShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
             }}
           >
-            RecipeHelper
+            Nibble
           </h1>
         </div>
 

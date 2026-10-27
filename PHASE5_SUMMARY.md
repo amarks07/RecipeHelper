@@ -528,7 +528,7 @@ Users can now:
 4. ✅ Sign out securely
 5. ✅ Have isolated, private recipe data
 
-RecipeHelper is now **production-ready** for:
+Nibble is now **production-ready** for:
 - User registration and authentication
 - Secure data isolation
 - Cross-device synchronization
@@ -640,4 +640,4 @@ Testing:
 
 ---
 
-**RecipeHelper is now PRODUCTION READY with full authentication!** 🚀
+**Nibble is now PRODUCTION READY with full authentication!** 🚀

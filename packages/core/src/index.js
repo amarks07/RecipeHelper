@@ -1,4 +1,4 @@
-// RecipeHelper Core Exports
+// Nibble Core Exports
 export { useRecipeActions } from './hooks/useRecipeActions';
 export { useRecipeSync } from './hooks/useRecipeSync';
 export { useRecipeSearch } from './hooks/useRecipeSearch';

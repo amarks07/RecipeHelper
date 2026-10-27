@@ -1,13 +1,13 @@
-# RecipeHelper
+# Nibble
 
 A mobile-first recipe management application with OCR-powered recipe import from screenshots. Built with React Native + Expo, Supabase, and Next.js deployment.
 
 ## Architecture Overview
 
-RecipeHelper follows the **Barrow monorepo pattern**:
+Nibble follows the **Barrow monorepo pattern**:
 
 ```
-RecipeHelper/
+Nibble/
 ├── apps/
 │   ├── mobile/      # React Native + Expo app
 │   └── web/         # Next.js deployment page
@@ -65,7 +65,7 @@ RecipeHelper/
 
 1. **Clone and install dependencies**:
    ```bash
-   cd RecipeHelper
+   cd Nibble
    npm install
    ```
 

@@ -1,6 +1,6 @@
-# RecipeHelper Web
+# Nibble Web
 
-This is the Next.js landing page and deployment host for RecipeHelper.
+This is the Next.js landing page and deployment host for Nibble.
 
 ## Structure
 

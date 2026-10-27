@@ -39,7 +39,7 @@ export default function RecipesLayout({ children }) {
               fontFamily: "'Fontdiner Swanky', cursive",
             }}
           >
-            RecipeHelper
+            Nibble
           </Link>
 
           <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
@@ -119,7 +119,7 @@ export default function RecipesLayout({ children }) {
           }}
         >
           <p>
-            RecipeHelper — Manage recipes across all your devices
+            Nibble — Manage recipes across all your devices
           </p>
         </div>
       </footer>

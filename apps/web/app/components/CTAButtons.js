@@ -23,7 +23,7 @@ export function CTAButtons() {
         Go to Recipes →
       </Link>
       <a
-        href="https://github.com/amarks07/RecipeHelper"
+        href="https://github.com/amarks07/Nibble"
         target="_blank"
         rel="noopener noreferrer"
         style={{

@@ -84,7 +84,7 @@ export default function LoginPage() {
             Sign In
           </h1>
           <p style={{ color: "#666", fontSize: "14px" }}>
-            Welcome back to RecipeHelper
+            Welcome back to Nibble
           </p>
         </div>
 

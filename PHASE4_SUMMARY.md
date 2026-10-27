@@ -549,7 +549,7 @@ apps/web/
 
 ## What This Unlocks
 
-RecipeHelper now has **complete full-stack functionality**:
+Nibble now has **complete full-stack functionality**:
 
 | Feature | Mobile | Web |
 |---------|--------|-----|

@@ -1,8 +1,8 @@
-# RecipeHelper Development Guide
+# Nibble Development Guide
 
 ## Project Context
 
-RecipeHelper is a mobile-first recipe management app with OCR-powered recipe import from screenshots. It follows the **Barrow monorepo scaffolding** (React Native + Expo mobile, Next.js web, Supabase backend).
+Nibble is a mobile-first recipe management app with OCR-powered recipe import from screenshots. It follows the **Barrow monorepo scaffolding** (React Native + Expo mobile, Next.js web, Supabase backend).
 
 ### Why This Matters
 - Users can quickly save recipes by photographing them
@@ -21,7 +21,7 @@ RecipeHelper is a mobile-first recipe management app with OCR-powered recipe imp
 
 ### Project Structure
 ```
-RecipeHelper/
+Nibble/
 ├── apps/mobile/           # React Native app (main deliverable)
 │   ├── src/
 │   │   ├── screens/       # Main UI screens
@@ -281,4 +281,4 @@ CREATE POLICY "Users can view own recipes"
 
 ## Contact
 
-See parent `RecipeHelper` README for setup and feature overview.
+See parent `Nibble` README for setup and feature overview.

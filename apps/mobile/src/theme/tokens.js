@@ -1,4 +1,4 @@
-// RecipeHelper color tokens
+// Nibble color tokens
 // Used for raw color values in contexts that need hex (SVG, status bar, etc.)
 export const THEME_TOKENS = {
   dark: {

@@ -1,9 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "RecipeHelper — Save & Organize Your Recipes",
+  title: "Nibble — Save & Organize Your Recipes",
   description:
-    "Capture recipes from photos, manage ingredients, and organize your favorite dishes with RecipeHelper.",
+    "Capture recipes from photos, manage ingredients, and organize your favorite dishes with Nibble.",
   icons: {
     icon: "/icon.png",
   },

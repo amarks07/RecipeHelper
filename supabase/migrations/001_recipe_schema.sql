@@ -1,4 +1,4 @@
--- RecipeHelper Database Schema
+-- Nibble Database Schema
 -- Phase 1: Core recipe and user management tables
 
 -- Enable necessary extensions
