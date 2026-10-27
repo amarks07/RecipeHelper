@@ -65,7 +65,7 @@ export function RecipesListView({
             marginBottom: 12,
           }}
         >
-          Recipes
+          nibble
         </Text>
 
         {/* Search Bar */}
