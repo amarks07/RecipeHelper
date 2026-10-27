@@ -26,12 +26,7 @@
       "baseUrl": "/app"
     },
     "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": ["./assets/fonts/FingerPaint-Regular.ttf"]
-        }
-      ],
+      "expo-font",
       "expo-splash-screen",
       [
         "expo-camera",

@@ -9,6 +9,8 @@ import {
   Image,
   Dimensions,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { ChevronLeft, AlertCircle, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -64,39 +66,44 @@ export function OCRReviewScreen({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.bg, paddingTop: insets.top }}>
-      {/* Header */}
-      <View
-        style={{
-          backgroundColor: tokens.surface,
-          borderBottomColor: tokens.line,
-          borderBottomWidth: 1,
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ChevronLeft size={24} color={tokens.text} />
-        </TouchableOpacity>
-        <Text
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1, backgroundColor: tokens.bg }}
+    >
+      <View style={{ flex: 1, backgroundColor: tokens.bg, paddingTop: insets.top }}>
+        {/* Header */}
+        <View
           style={{
-            fontSize: 18,
-            fontWeight: "600",
-            color: tokens.text,
+            backgroundColor: tokens.surface,
+            borderBottomColor: tokens.line,
+            borderBottomWidth: 1,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          Review Recipe
-        </Text>
-        <View style={{ width: 24 }} />
-      </View>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ChevronLeft size={24} color={tokens.text} />
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "600",
+              color: tokens.text,
+            }}
+          >
+            Review Recipe
+          </Text>
+          <View style={{ width: 24 }} />
+        </View>
 
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-      >
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 120 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
         {/* Image Tiles */}
         {images && images.length > 0 && (
           <View style={{ marginBottom: 20 }}>
@@ -555,6 +562,6 @@ export function OCRReviewScreen({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
