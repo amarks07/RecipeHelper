@@ -8,8 +8,9 @@ import {
   TextInput,
   Image,
   Dimensions,
+  Modal,
 } from "react-native";
-import { ChevronLeft, AlertCircle, ChevronRight } from "lucide-react-native";
+import { ChevronLeft, AlertCircle, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppState } from "../../state/AppStateProvider";
 import { useRecipeActions } from "@recipehelper/core";
@@ -26,7 +27,8 @@ export function OCRReviewScreen({ navigation, route }) {
   const { recipes, setRecipes } = useAppState();
   const { createRecipe } = useRecipeActions(recipes, setRecipes);
   const [isSaving, setIsSaving] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const screenWidth = Dimensions.get("window").width;
 
   const [editedRecipe, setEditedRecipe] = useState({
@@ -95,76 +97,130 @@ export function OCRReviewScreen({ navigation, route }) {
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Image Gallery */}
+        {/* Image Tiles */}
         {images && images.length > 0 && (
           <View style={{ marginBottom: 20 }}>
-            <View
+            <Text
               style={{
-                position: "relative",
-                backgroundColor: tokens.surface,
-                borderRadius: 12,
-                overflow: "hidden",
+                fontSize: 14,
+                fontWeight: "600",
+                color: tokens.textDim,
                 marginBottom: 8,
               }}
             >
-              <Image
-                source={{ uri: images[currentImageIndex].uri }}
-                style={{
-                  width: screenWidth - 32,
-                  height: 300,
-                  resizeMode: "cover",
-                }}
-              />
-              {images.length > 1 && (
-                <>
-                  <TouchableOpacity
-                    onPress={() =>
-                      setCurrentImageIndex(
-                        currentImageIndex === 0 ? images.length - 1 : currentImageIndex - 1
-                      )
-                    }
-                    style={{
-                      position: "absolute",
-                      left: 8,
-                      top: "50%",
-                      transform: [{ translateY: -12 }],
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      borderRadius: 24,
-                      padding: 8,
-                    }}
-                  >
-                    <ChevronLeft size={24} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() =>
-                      setCurrentImageIndex((currentImageIndex + 1) % images.length)
-                    }
-                    style={{
-                      position: "absolute",
-                      right: 8,
-                      top: "50%",
-                      transform: [{ translateY: -12 }],
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      borderRadius: 24,
-                      padding: 8,
-                    }}
-                  >
-                    <ChevronRight size={24} color="#fff" />
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-            <Text
-              style={{
-                fontSize: 12,
-                color: tokens.textDim,
-                textAlign: "center",
-              }}
-            >
-              Image {currentImageIndex + 1} of {images.length}
+              Source Images ({images.length})
             </Text>
+            <View style={{ flexDirection: "row", gap: 12, flexWrap: "wrap" }}>
+              {images.map((image, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  onPress={() => {
+                    setSelectedImageIndex(idx);
+                    setImageViewerVisible(true);
+                  }}
+                  style={{
+                    backgroundColor: tokens.surface,
+                    borderColor: tokens.line,
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    width: (screenWidth - 40) / 2,
+                    aspectRatio: 3 / 4,
+                  }}
+                >
+                  <Image
+                    source={{ uri: image.uri }}
+                    style={{ width: "100%", height: "100%" }}
+                  />
+                  <View
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      padding: 4,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        color: "#fff",
+                        textAlign: "center",
+                      }}
+                    >
+                      Tap to view
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         )}
+
+        {/* Image Viewer Modal */}
+        <Modal
+          visible={imageViewerVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setImageViewerVisible(false)}
+        >
+          <View style={{ flex: 1, backgroundColor: "#000" }}>
+            {/* Close Button */}
+            <View
+              style={{
+                position: "absolute",
+                top: insets.top + 12,
+                right: 12,
+                zIndex: 10,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setImageViewerVisible(false)}
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: 24,
+                  padding: 8,
+                }}
+              >
+                <X size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Image */}
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 16,
+              }}
+            >
+              <Image
+                source={{ uri: images[selectedImageIndex]?.uri }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "contain",
+                }}
+              />
+            </View>
+
+            {/* Counter */}
+            <View
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 14 }}>
+                Image {selectedImageIndex + 1} of {images.length}
+              </Text>
+            </View>
+          </View>
+        </Modal>
         {/* Confidence Banner */}
         {validation && validation.issues.length > 0 && (
           <View

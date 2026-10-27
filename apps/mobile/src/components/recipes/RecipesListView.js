@@ -58,9 +58,10 @@ export function RecipesListView({
       >
         <Text
           style={{
-            fontSize: 28,
-            fontWeight: "700",
-            color: tokens.text,
+            fontSize: 36,
+            fontWeight: "400",
+            fontFamily: "Finger Paint",
+            color: tokens.accent,
             marginBottom: 12,
           }}
         >

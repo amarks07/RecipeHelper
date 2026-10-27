@@ -51,9 +51,10 @@ export function LoginScreen({ navigation }) {
       <View style={{ marginBottom: 40 }}>
         <Text
           style={{
-            fontSize: 32,
-            fontWeight: "700",
-            color: tokens.text,
+            fontSize: 48,
+            fontWeight: "400",
+            fontFamily: "Finger Paint",
+            color: tokens.accent,
             textAlign: "center",
             marginBottom: 8,
           }}
