@@ -7,8 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build:web": "npm run export:web --workspace=apps/mobile && npm run build --workspace=apps/web",
-    "prepare": "husky"
+    "build:web": "npm run export:web --workspace=apps/mobile && npm run build --workspace=apps/web"
   },
   "devDependencies": {
     "husky": "^9.1.7",
