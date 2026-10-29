@@ -6,6 +6,27 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { getDeviceType } from "./utils/device-detection";
 
+const FRUIT_ICONS = [
+  "fig",
+  "lemon",
+  "pear",
+  "red-apple",
+  "tomato",
+  "cherries",
+  "yellow-pear",
+  "blueberries",
+  "watermelon",
+  "peach",
+  "pomegranate",
+  "strawberry",
+  "avocado",
+  "pineapple",
+  "grapes",
+  "green-apple",
+  "plum",
+  "orange",
+];
+
 export default function Home() {
   const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
@@ -161,17 +182,20 @@ export default function Home() {
         </Link>
 
         {/* Hero Title */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px 24px",
-            minHeight: "300px",
-          }}
-        >
+        <div className="home-hero">
+          <div className="produce-scatter" aria-hidden="true">
+            {FRUIT_ICONS.map((fruit) => (
+              <img
+                key={fruit}
+                src={`/fruit-icons/${fruit}.png`}
+                alt=""
+                className={`produce-icon produce-icon--${fruit}`}
+                draggable="false"
+              />
+            ))}
+          </div>
           <h1
+            className="home-wordmark"
             style={{
               fontSize: "clamp(48px, 12vw, 96px)",
               fontWeight: "400",
