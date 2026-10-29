@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { getDeviceType } from "./utils/device-detection";
+import FruitPhysicsLayer from "./components/FruitPhysicsLayer";
 
 const FRUIT_ICONS = [
   "fig",
@@ -183,17 +184,7 @@ export default function Home() {
 
         {/* Hero Title */}
         <div className="home-hero">
-          <div className="produce-scatter" aria-hidden="true">
-            {FRUIT_ICONS.map((fruit) => (
-              <img
-                key={fruit}
-                src={`/fruit-icons/${fruit}.png`}
-                alt=""
-                className={`produce-icon produce-icon--${fruit}`}
-                draggable="false"
-              />
-            ))}
-          </div>
+          <FruitPhysicsLayer fruits={FRUIT_ICONS} />
           <h1
             className="home-wordmark"
             style={{
