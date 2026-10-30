@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import { getDeviceType } from "./utils/device-detection";
 import FruitPhysicsLayer from "./components/FruitPhysicsLayer";
+import { supabase } from "./supabase-client";
 
 const FRUIT_ICONS = [
   "fig",
@@ -40,10 +40,6 @@ export default function Home() {
 
     // Check if user is already signed in
     const checkAuth = async () => {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      );
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         // Android users go back to install page, others go to recipes
@@ -212,6 +208,7 @@ export default function Home() {
         >
           {/* Section 1 */}
           <div
+            className="home-feature-tomato"
             style={{
               padding: "32px 24px",
               display: "flex",
@@ -219,11 +216,11 @@ export default function Home() {
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
-              borderRight: "1px solid #16a34a",
+              borderRight: "1px solid var(--theme-border)",
             }}
           >
-            <span className="material-icon" style={{ color: "#16a34a" }}>photo_camera</span>
-            <h3 style={{ color: "#16a34a", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
+            <span className="material-icon">photo_camera</span>
+            <h3 style={{ fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
               Capture
             </h3>
             <p style={{ color: "#6b7280", fontSize: "clamp(13px, 3vw, 14px)", lineHeight: "1.5" }}>
@@ -233,6 +230,7 @@ export default function Home() {
 
           {/* Section 2 */}
           <div
+            className="home-feature-blueberry"
             style={{
               padding: "32px 24px",
               display: "flex",
@@ -240,11 +238,11 @@ export default function Home() {
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
-              borderRight: "1px solid #16a34a",
+              borderRight: "1px solid var(--theme-border)",
             }}
           >
-            <span className="material-icon" style={{ color: "#16a34a" }}>search</span>
-            <h3 style={{ color: "#16a34a", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
+            <span className="material-icon">search</span>
+            <h3 style={{ fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
               Organize
             </h3>
             <p style={{ color: "#6b7280", fontSize: "clamp(13px, 3vw, 14px)", lineHeight: "1.5" }}>
@@ -254,6 +252,7 @@ export default function Home() {
 
           {/* Section 3 */}
           <div
+            className="home-feature-herb"
             style={{
               padding: "32px 24px",
               display: "flex",
@@ -263,8 +262,8 @@ export default function Home() {
               textAlign: "center",
             }}
           >
-            <span className="material-icon" style={{ color: "#16a34a" }}>cloud_sync</span>
-            <h3 style={{ color: "#16a34a", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
+            <span className="material-icon">cloud_sync</span>
+            <h3 style={{ fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "600", marginBottom: "12px" }}>
               Sync
             </h3>
             <p style={{ color: "#6b7280", fontSize: "clamp(13px, 3vw, 14px)", lineHeight: "1.5" }}>

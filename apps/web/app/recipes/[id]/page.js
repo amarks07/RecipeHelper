@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { getRecipeImageUrl } from "../../utils/recipe-images";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -52,7 +53,8 @@ export default function RecipeDetailPage() {
         userId: data.user_id,
         title: data.title,
         description: data.description,
-        imageUrl: data.image_url,
+        imageUrl: await getRecipeImageUrl(supabase, data.image_url),
+        sourceUrl: data.source_url,
         ingredients: data.recipe_ingredients?.sort((a, b) => a.order - b.order) || [],
         instructions: data.recipe_instructions?.sort((a, b) => a.order - b.order) || [],
         tags: data.recipe_tags?.map((t) => t.tag_name) || [],
@@ -287,6 +289,14 @@ export default function RecipeDetailPage() {
             marginBottom: "32px",
           }}
         />
+      )}
+
+      {recipe.sourceUrl && (
+        <p className="recipe-source-link">
+          <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer">
+            View original recipe
+          </a>
+        </p>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "40px" }}>

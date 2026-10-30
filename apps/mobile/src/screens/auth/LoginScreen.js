@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 export function LoginScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -64,12 +64,12 @@ export function LoginScreen({ navigation }) {
         </Text>
         <Text
           style={{
-            fontSize: 14,
             color: tokens.textDim,
+            fontSize: 14,
             textAlign: "center",
           }}
         >
-          Welcome back to nibble
+          Welcome back. Your favorite bites are waiting.
         </Text>
       </View>
 

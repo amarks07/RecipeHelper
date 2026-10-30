@@ -1,5 +1,6 @@
 import "./globals.css";
 import ThemeToggle from "./components/ThemeToggle";
+import { SiteNavbar } from "./components/SiteNavbar";
 
 export const metadata = {
   title: "Nibble — Save & Organize Your Recipes",
@@ -11,7 +12,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#10B981",
+  themeColor: "#34754A",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -22,13 +23,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap" rel="stylesheet" />
-        <style>{`
-          * {
-            --app-font: 'Finger Paint', cursive;
-          }
-        `}</style>
       </head>
       <body>
+        <SiteNavbar />
         {children}
         <ThemeToggle />
       </body>

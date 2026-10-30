@@ -10,7 +10,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HouseholdInvitationCard } from "../../components/households/HouseholdInvitationCard";
 import { useAppState } from "../../state/AppStateProvider";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { supabase } from "../../lib/supabase-client";
+import { sendHouseholdInvite } from "@recipehelper/core";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 export function HouseholdSetupScreen() {
   const insets = useSafeAreaInsets();
@@ -20,13 +22,15 @@ export function HouseholdSetupScreen() {
     householdsLoading,
     householdError,
     refreshHouseholds,
-    createHousehold,
     respondToInvitation,
   } = useAppState();
   const [name, setName] = useState("");
-  const [emails, setEmails] = useState("");
+  const [householdId, setHouseholdId] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [pendingInvites, setPendingInvites] = useState([]);
   const [workingId, setWorkingId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
 
   const respond = async (id, accept) => {
     setWorkingId(id);
@@ -44,20 +48,44 @@ export function HouseholdSetupScreen() {
       Alert.alert("Household name required", "Enter a name for your household.");
       return;
     }
-    const invitedEmails = [...new Set(
-      emails
-        .split(/[,\n;]/)
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean)
-    )];
-
     setIsCreating(true);
     try {
-      await createHousehold(name.trim(), invitedEmails);
+      const { data, error } = await supabase.rpc("create_household", {
+        household_name: name.trim(),
+        invited_emails: [],
+      });
+      if (error) throw error;
+      setHouseholdId(data);
     } catch (error) {
       Alert.alert("Could not create household", error.message || "Please try again.");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const invite = async () => {
+    setIsInviting(true);
+    try {
+      const invitation = await sendHouseholdInvite(supabase, householdId, inviteEmail);
+      setInviteEmail("");
+      setPendingInvites((current) => [
+        {
+          id: invitation.invitationId,
+          email: invitation.email,
+        },
+        ...current.filter((item) => item.id !== invitation.invitationId),
+      ]);
+    } catch (error) {
+      Alert.alert("Could not send invitation", error.message || "Please try again.");
+      const { data } = await supabase
+        .from("household_invitations")
+        .select("id, email")
+        .eq("household_id", householdId)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+      if (data) setPendingInvites(data);
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -109,64 +137,99 @@ export function HouseholdSetupScreen() {
             padding: 16,
           }}
         >
-          <Text style={{ color: tokens.text, fontSize: 18, fontWeight: "600", marginBottom: 16 }}>
-            Create a household
-          </Text>
-          <Text style={{ color: tokens.textDim, fontSize: 13, marginBottom: 6 }}>
-            Household name
-          </Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="e.g. The Rivera family"
-            placeholderTextColor={tokens.textDim}
-            maxLength={100}
-            style={{
-              backgroundColor: tokens.bg,
-              borderColor: tokens.line,
-              borderWidth: 1,
-              borderRadius: 8,
-              color: tokens.text,
-              padding: 12,
-              marginBottom: 16,
-            }}
-          />
-          <Text style={{ color: tokens.textDim, fontSize: 13, marginBottom: 6 }}>
-            Invite by email (optional)
-          </Text>
-          <TextInput
-            value={emails}
-            onChangeText={setEmails}
-            placeholder="Separate email addresses with commas or new lines"
-            placeholderTextColor={tokens.textDim}
-            multiline
-            style={{
-              minHeight: 76,
-              textAlignVertical: "top",
-              backgroundColor: tokens.bg,
-              borderColor: tokens.line,
-              borderWidth: 1,
-              borderRadius: 8,
-              color: tokens.text,
-              padding: 12,
-              marginBottom: 16,
-            }}
-          />
-          <TouchableOpacity
-            onPress={submit}
-            disabled={isCreating || householdsLoading}
-            style={{
-              alignItems: "center",
-              backgroundColor: tokens.accent,
-              borderRadius: 8,
-              paddingVertical: 13,
-              opacity: isCreating || householdsLoading ? 0.6 : 1,
-            }}
-          >
-            <Text style={{ color: tokens.onAccent, fontWeight: "700" }}>
-              {isCreating ? "Creating..." : "Create household"}
-            </Text>
-          </TouchableOpacity>
+          {!householdId ? (
+            <>
+              <Text style={{ color: tokens.text, fontSize: 18, fontWeight: "600", marginBottom: 16 }}>
+                Create a household
+              </Text>
+              <Text style={{ color: tokens.textDim, fontSize: 13, marginBottom: 6 }}>
+                Household name
+              </Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="e.g. The Rivera family"
+                placeholderTextColor={tokens.textDim}
+                maxLength={100}
+                style={{
+                  backgroundColor: tokens.bg,
+                  borderColor: tokens.line,
+                  borderWidth: 1,
+                  borderRadius: 8,
+                  color: tokens.text,
+                  padding: 12,
+                  marginBottom: 16,
+                }}
+              />
+              <TouchableOpacity
+                onPress={submit}
+                disabled={isCreating || householdsLoading}
+                style={{
+                  alignItems: "center",
+                  backgroundColor: tokens.accent,
+                  borderRadius: 8,
+                  opacity: isCreating || householdsLoading ? 0.6 : 1,
+                }}
+              >
+                <Text style={{ color: tokens.onAccent, fontWeight: "700" }}>
+                  {isCreating ? "Creating..." : "Create household"}
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={{ color: tokens.text, fontSize: 18, fontWeight: "600", marginBottom: 12 }}>
+                Invite someone to {name}
+              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <TextInput
+                  value={inviteEmail}
+                  onChangeText={setInviteEmail}
+                  placeholder="name@example.com"
+                  placeholderTextColor={tokens.textDim}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    backgroundColor: tokens.bg,
+                    borderColor: tokens.line,
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    color: tokens.text,
+                    padding: 12,
+                  }}
+                />
+                <TouchableOpacity
+                  onPress={invite}
+                  disabled={isInviting || !inviteEmail.trim()}
+                  style={{ alignItems: "center", opacity: isInviting ? 0.6 : 1 }}
+                >
+                  <Text style={{ color: tokens.onAccent, fontWeight: "700" }}>
+                    {isInviting ? "Inviting..." : "Invite"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={{ color: tokens.text, fontSize: 16, fontWeight: "600", marginTop: 20, marginBottom: 8 }}>
+                Pending invites
+              </Text>
+              {pendingInvites.length ? pendingInvites.map((invitation) => (
+                <Text key={invitation.id} style={{ color: tokens.text, paddingVertical: 6 }}>
+                  {invitation.email}
+                </Text>
+              )) : (
+                <Text style={{ color: tokens.textDim }}>No pending invites yet.</Text>
+              )}
+              <TouchableOpacity
+                onPress={refreshHouseholds}
+                disabled={isInviting || householdsLoading}
+                style={{ alignItems: "center", marginTop: 20 }}
+              >
+                <Text style={{ color: tokens.onAccent, fontWeight: "700" }}>Continue to recipes</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
     </View>

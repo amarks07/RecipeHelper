@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { ChefHat, Flame, Clock, Trash2 } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton } from "../ui/SketchButton";
+import { PushableButton } from "../ui/PushableButton";
 
 export function RecipeCard({ recipe, onPress, onDelete, canDelete = true }) {
   const { tokens } = useTheme();
@@ -35,9 +35,9 @@ export function RecipeCard({ recipe, onPress, onDelete, canDelete = true }) {
         borderWidth: 1,
       }}
     >
-      {recipe.imageUrl && (
+      {(recipe.imageDisplayUrl || recipe.imageUrl) && (
         <Image
-          source={{ uri: recipe.imageUrl }}
+          source={{ uri: recipe.imageDisplayUrl || recipe.imageUrl }}
           style={{
             width: "100%",
             height: 160,
@@ -103,38 +103,41 @@ export function RecipeCard({ recipe, onPress, onDelete, canDelete = true }) {
         </View>
 
         {canDelete && (
-          <TouchableOpacity
+          <PushableButton
             onPress={handleDelete}
             style={{ padding: 4, marginLeft: 8 }}
           >
             <Trash2 size={18} color={tokens.danger} />
-          </TouchableOpacity>
+          </PushableButton>
         )}
       </View>
 
       {recipe.tags && recipe.tags.length > 0 && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-          {recipe.tags.slice(0, 3).map((tag, idx) => (
-            <View
-              key={idx}
-              style={{
-                backgroundColor: tokens.accent + "20",
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-                borderRadius: 6,
-              }}
-            >
-              <Text
+          {recipe.tags.slice(0, 3).map((tag, idx) => {
+            const tagColor = tokens.palette[idx % tokens.palette.length];
+            return (
+              <View
+                key={idx}
                 style={{
-                  fontSize: 11,
-                  color: tokens.accent,
-                  fontWeight: "500",
+                  backgroundColor: tagColor + "20",
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 6,
                 }}
               >
-                {tag}
-              </Text>
-            </View>
-          ))}
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: tagColor,
+                    fontWeight: "500",
+                  }}
+                >
+                  {tag}
+                </Text>
+              </View>
+            );
+          })}
         </View>
       )}
     </TouchableOpacity>

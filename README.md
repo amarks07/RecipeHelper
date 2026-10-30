@@ -23,7 +23,7 @@ Nibble/
 ### Phase 1: Foundation ✅ (Complete)
 - **Database Schema**: Recipes, ingredients, instructions, tags, OCR imports with RLS
 - **Supabase Edge Functions**:
-  - `ocr-process`: Extract text from recipe images using Google Cloud Vision
+  - `ocr-process`: Legacy mobile OCR endpoint (not configured for cloud OCR)
   - `recipe-save-from-ocr`: Transform OCR output into structured recipes
   - `recipe-image-upload`: Generate presigned URLs for S3 uploads
   - `recipe-search`: Full-text search with PostgreSQL trigram index
@@ -54,8 +54,8 @@ Nibble/
 
 ### Household sharing
 - Recipes belong to a household and are visible to its members.
-- Users create or join a household before adding recipes; creators can invite people by email.
-- Invitees can accept or decline from Notifications. Household owners can rename their household, manage invitations, and remove members.
+- Users can create or join households before adding recipes; owners can create multiple households and invite people by email.
+- Invitees can accept or decline from Notifications. Household owners can rename or delete households, manage invitations, and remove members. Deleting a household permanently deletes its recipes, memberships, and invitations.
 - Users in multiple households can filter recipes by household or view all household recipes.
 - Invitations appear in the app for the matching signed-in email address.
 
@@ -65,7 +65,6 @@ Nibble/
 - Node.js 18+
 - npm or yarn (npm workspaces)
 - Supabase account
-- (Optional) Google Cloud Vision API key
 - (Optional) AWS S3 bucket for images
 
 ### Setup
@@ -102,11 +101,16 @@ Nibble/
    npx supabase functions deploy recipe-save-from-ocr
    npx supabase functions deploy recipe-image-upload
    npx supabase functions deploy recipe-search
+   npx supabase functions deploy send-household-invite
    ```
 
-5. **Configure OCR** (Optional):
-   - Set `GOOGLE_VISION_API_KEY` in Supabase secrets
-   - Update `supabase/functions/ocr-process/index.ts` to call actual Vision API
+5. **Configure household invitation emails**:
+   - Verify a sending domain with Resend and create an API key.
+   - Set `RESEND_API_KEY`, `HOUSEHOLD_INVITE_FROM_EMAIL` (for example, `Nibble <invites@your-domain.com>`), and `APP_URL` (the public web app URL) as Supabase function secrets.
+     ```bash
+     npx supabase secrets set RESEND_API_KEY="your-resend-api-key" HOUSEHOLD_INVITE_FROM_EMAIL="Nibble <invites@your-domain.com>" APP_URL="https://your-app.example.com"
+     ```
+   - Apply database migrations with `npx supabase db push` so the pending-invite retry behavior is available.
 
 ### Development
 
@@ -145,8 +149,7 @@ All tables use Row Level Security (RLS) — users can only access their own data
 ### Edge Functions
 
 **POST `/ocr-process`**
-- Input: `imageUrl` (S3 URL) or `base64Image`
-- Output: Structured recipe with ingredients, instructions, confidence scores
+- Legacy mobile endpoint; returns `501` when cloud OCR is unavailable
 - Auth: Required (JWT)
 
 **POST `/recipe-save-from-ocr`**
@@ -190,21 +193,12 @@ Follows **Barrow's pattern**:
 - **Optimistic Updates**: UI updates immediately, syncs in background
 - **Conflict Resolution**: Last-write-wins with server timestamp
 
-## OCR Processing
+## Web Recipe Import
 
-**Pipeline**:
-1. User captures recipe image or selects from gallery
-2. Image compressed with `expo-image-manipulator`
-3. Uploaded to S3 via presigned URL
-4. Edge Function calls Google Cloud Vision API
-5. Heuristic parser extracts ingredients, instructions, metadata
-6. User reviews and corrects OCR results
-7. `recipe-save-from-ocr` creates database records
-
-**Confidence Scoring**:
-- Each ingredient/field gets confidence score (0-1)
-- Low-confidence fields highlighted for user review
-- Corrections stored for model improvement
+- Recipe links are read by the web app's same-origin importer, which extracts Schema.org Recipe data and falls back to visible page text.
+- Screenshot OCR runs in the browser with the open-source Tesseract.js package; no paid OCR service or API key is used.
+- Extracted details are editable before saving, and the original link or screenshot is retained with the recipe.
+- Link fetching is limited to public HTTP(S) pages, with redirect, timeout, and response-size limits.
 
 ## Deployment
 
@@ -242,11 +236,10 @@ Follows **Barrow's pattern**:
 
 ## Architecture Decisions
 
-### Why Google Cloud Vision + Edge Functions?
-- **Security**: API keys never reach client
-- **Cost**: Server-side rate limiting
-- **Accuracy**: Professional OCR vs. client-side alternatives
-- **Flexibility**: Can add Claude API for recipe parsing enhancement
+### Why local web OCR?
+- **No OCR service fees**: Tesseract.js runs in the user's browser.
+- **Privacy**: Screenshot pixels are not sent to an OCR provider.
+- **Reviewable results**: Imported fields remain editable before saving.
 
 ### Why Supabase?
 - **Built-in Auth**: Email/password with JWT

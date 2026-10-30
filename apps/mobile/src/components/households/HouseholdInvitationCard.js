@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../ui/PushableButton";
 
 export function HouseholdInvitationCard({
   invitation,

@@ -15,3 +15,6 @@ verify_jwt = true
 
 [functions.recipe-search]
 verify_jwt = true
+
+[functions.send-household-invite]
+verify_jwt = true

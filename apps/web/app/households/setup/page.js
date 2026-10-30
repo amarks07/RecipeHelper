@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { sendHouseholdInvite } from "@recipehelper/core";
 import { AuthGuard } from "../../components/auth-guard";
 
 const supabase = createClient(
@@ -13,11 +14,14 @@ const supabase = createClient(
 function HouseholdSetupContent() {
   const router = useRouter();
   const [householdName, setHouseholdName] = useState("");
-  const [inviteEmails, setInviteEmails] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [householdId, setHouseholdId] = useState("");
   const [invitations, setInvitations] = useState([]);
+  const [pendingInvites, setPendingInvites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [workingId, setWorkingId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
   const [error, setError] = useState("");
 
   const loadHouseholdData = useCallback(async () => {
@@ -98,24 +102,49 @@ function HouseholdSetupContent() {
       return;
     }
 
-    const emails = [...new Set(
-      inviteEmails
-        .split(/[,\n;]/)
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean)
-    )];
     setIsCreating(true);
     setError("");
-    const { error: createError } = await supabase.rpc("create_household", {
-      household_name: householdName.trim(),
-      invited_emails: emails,
-    });
-    if (createError) {
-      setError(createError.message);
+    try {
+      const { data, error: createError } = await supabase.rpc("create_household", {
+        household_name: householdName.trim(),
+        invited_emails: [],
+      });
+      if (createError) throw createError;
+      setHouseholdId(data);
+    } catch (createError) {
+      setError(createError.message || "Could not create the household.");
+    } finally {
       setIsCreating(false);
-      return;
     }
-    router.replace("/recipes");
+  };
+
+  const sendInvite = async (event) => {
+    event.preventDefault();
+    setIsInviting(true);
+    setError("");
+    try {
+      const invitation = await sendHouseholdInvite(supabase, householdId, inviteEmail);
+      setInviteEmail("");
+      setPendingInvites((current) => [
+        {
+          id: invitation.invitationId,
+          email: invitation.email,
+          created_at: invitation.createdAt,
+        },
+        ...current.filter((item) => item.id !== invitation.invitationId),
+      ]);
+    } catch (inviteError) {
+      setError(inviteError.message || "Could not send the invitation.");
+      const { data, error: loadError } = await supabase
+        .from("household_invitations")
+        .select("id, email, created_at")
+        .eq("household_id", householdId)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+      if (!loadError) setPendingInvites(data || []);
+    } finally {
+      setIsInviting(false);
+    }
   };
 
   if (loading) {
@@ -159,30 +188,54 @@ function HouseholdSetupContent() {
         </section>
       )}
 
-      <form onSubmit={createHousehold} style={{ marginTop: 32 }}>
-        <h2>Create a household</h2>
-        <label htmlFor="household-name">Household name</label>
-        <input
-          id="household-name"
-          value={householdName}
-          onChange={(event) => setHouseholdName(event.target.value)}
-          maxLength={100}
-          required
-          style={{ display: "block", width: "100%", padding: 12, margin: "8px 0 16px" }}
-        />
-        <label htmlFor="invite-emails">Invite by email (optional)</label>
-        <textarea
-          id="invite-emails"
-          value={inviteEmails}
-          onChange={(event) => setInviteEmails(event.target.value)}
-          placeholder="Separate email addresses with commas or new lines"
-          rows={3}
-          style={{ display: "block", width: "100%", padding: 12, margin: "8px 0 16px" }}
-        />
-        <button type="submit" disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create household"}
-        </button>
-      </form>
+      {!householdId ? (
+        <form onSubmit={createHousehold} style={{ marginTop: 32 }}>
+          <h2>Create a household</h2>
+          <label htmlFor="household-name">Household name</label>
+          <input
+            id="household-name"
+            value={householdName}
+            onChange={(event) => setHouseholdName(event.target.value)}
+            maxLength={100}
+            required
+            style={{ display: "block", width: "100%", margin: "8px 0 16px" }}
+          />
+          <button type="submit" disabled={isCreating}>
+            {isCreating ? "Creating..." : "Create household"}
+          </button>
+        </form>
+      ) : (
+        <section style={{ marginTop: 32 }}>
+          <h2>Invite someone to {householdName}</h2>
+          <form onSubmit={sendInvite} style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(event) => setInviteEmail(event.target.value)}
+              placeholder="name@example.com"
+              autoComplete="email"
+              required
+              style={{ flex: 1, minWidth: 0 }}
+            />
+            <button type="submit" disabled={isInviting}>
+              {isInviting ? "Inviting..." : "Invite"}
+            </button>
+          </form>
+          <h3 style={{ marginTop: 24 }}>Pending invites</h3>
+          {pendingInvites.length ? (
+            <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+              {pendingInvites.map((invitation) => (
+                <li key={invitation.id}>{invitation.email}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No pending invites yet.</p>
+          )}
+          <button style={{ marginTop: 24 }} onClick={() => router.replace("/recipes")}>
+            Continue to recipes
+          </button>
+        </section>
+      )}
     </main>
   );
 }

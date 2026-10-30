@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 export function SignupScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -73,7 +73,7 @@ export function SignupScreen({ navigation }) {
               textAlign: "center",
             }}
           >
-            Start managing your recipes
+            Make room for your favorite bites.
           </Text>
         </View>
 

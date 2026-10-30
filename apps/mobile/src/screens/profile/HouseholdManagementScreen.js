@@ -10,25 +10,28 @@ import {
 import { ChevronDown, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "../../lib/supabase-client";
+import { sendHouseholdInvite } from "@recipehelper/core";
 import { useAppState } from "../../state/AppStateProvider";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 export function HouseholdManagementScreen() {
   const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
-  const { households, user, refreshHouseholds } = useAppState();
+  const { households, user, refreshHouseholds, createHousehold } = useAppState();
   const ownedHouseholds = households.filter(
     (household) => household.owner_id === user?.id
   );
   const [householdId, setHouseholdId] = useState(ownedHouseholds[0]?.id || "");
   const [householdName, setHouseholdName] = useState("");
+  const [newHouseholdName, setNewHouseholdName] = useState("");
   const [members, setMembers] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [inviteEmail, setInviteEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
   const [showHouseholdPicker, setShowHouseholdPicker] = useState(false);
+  const [householdToDelete, setHouseholdToDelete] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -101,7 +104,7 @@ export function HouseholdManagementScreen() {
   };
 
   const saveName = async () => {
-    const sent = await runAction(
+    await runAction(
       () => supabase.rpc("rename_household", {
         target_household_id: householdId,
         new_name: householdName,
@@ -110,19 +113,65 @@ export function HouseholdManagementScreen() {
     );
   };
 
+  const addHousehold = async () => {
+    const name = newHouseholdName.trim();
+    if (!name) {
+      Alert.alert("Name required", "Enter a name for the new household.");
+      return;
+    }
+
+    setIsWorking(true);
+    setError("");
+    try {
+      const createdId = await createHousehold(name);
+      setHouseholdId(createdId);
+      setNewHouseholdName("");
+      Alert.alert("Household created", "Your new household is ready.");
+    } catch (createError) {
+      setError(createError.message || "Could not create the household.");
+    } finally {
+      setIsWorking(false);
+    }
+  };
+
+  const deleteHousehold = () => {
+    const household = ownedHouseholds.find((item) => item.id === householdId);
+    if (!household) return;
+    setHouseholdToDelete(household);
+  };
+
+  const confirmDeleteHousehold = async () => {
+    if (!householdToDelete) return;
+    setIsWorking(true);
+    setError("");
+    try {
+      const { error: deleteError } = await supabase.rpc(
+        "delete_household",
+        { target_household_id: householdToDelete.id }
+      );
+      if (deleteError) throw deleteError;
+      setHouseholdId("");
+      setHouseholdToDelete(null);
+      await refreshHouseholds();
+    } catch (deleteError) {
+      setError(deleteError.message || "Could not delete the household.");
+    } finally {
+      setIsWorking(false);
+    }
+  };
+
   const sendInvite = async () => {
     if (!inviteEmail.trim()) {
       Alert.alert("Email required", "Enter an email address to invite.");
       return;
     }
-    await runAction(
-      () => supabase.rpc("send_household_invite", {
-        target_household_id: householdId,
-        invitee_email: inviteEmail.trim(),
-      }),
+    const sent = await runAction(
+      () => sendHouseholdInvite(supabase, householdId, inviteEmail.trim())
+        .then(() => ({ error: null })),
       "The invitation has been sent."
     );
     if (sent) setInviteEmail("");
+    else await loadDetails();
   };
 
   const revokeInvite = (invitation) => {
@@ -158,23 +207,18 @@ export function HouseholdManagementScreen() {
     ]);
   };
 
-  if (!ownedHouseholds.length) {
-    return (
-      <View style={{ flex: 1, backgroundColor: tokens.bg, padding: 24, paddingTop: insets.top + 24 }}>
-        <Text style={{ color: tokens.text, fontSize: 18 }}>Household management is only available to household owners.</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg, paddingTop: insets.top }}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
-        <Text style={{ color: tokens.text, fontSize: 24, fontWeight: "700", marginBottom: 16 }}>
+        <Text style={{ color: tokens.text, fontSize: 28, fontWeight: "700", marginBottom: 16 }}>
           Household management
         </Text>
 
         {ownedHouseholds.length > 1 && (
           <>
+            <Text style={{ color: tokens.text, fontWeight: "600", marginBottom: 6 }}>
+              Household
+            </Text>
             <TouchableOpacity
               onPress={() => setShowHouseholdPicker(true)}
               style={{
@@ -223,10 +267,38 @@ export function HouseholdManagementScreen() {
           </>
         )}
 
+        <View style={{ backgroundColor: tokens.surface, borderColor: tokens.line, borderWidth: 1, borderRadius: 12, padding: 16, marginTop: 16 }}>
+          <Text style={{ color: tokens.text, fontWeight: "600", marginBottom: 8 }}>
+            {ownedHouseholds.length ? "Create another household" : "Create a household"}
+          </Text>
+          <TextInput
+            value={newHouseholdName}
+            onChangeText={setNewHouseholdName}
+            maxLength={100}
+            placeholder="Household name"
+            placeholderTextColor={tokens.textDim}
+            style={{ color: tokens.text, backgroundColor: tokens.bg, borderColor: tokens.line, borderWidth: 1, borderRadius: 8, padding: 10 }}
+          />
+          <TouchableOpacity
+            onPress={addHousehold}
+            disabled={isWorking || !newHouseholdName.trim()}
+            style={{ backgroundColor: tokens.accent, borderRadius: 8, padding: 12, alignItems: "center", marginTop: 12, opacity: isWorking || !newHouseholdName.trim() ? 0.6 : 1 }}
+          >
+            <Text style={{ color: tokens.onAccent, fontWeight: "600" }}>
+              {isWorking ? "Creating..." : "Create household"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {error ? <Text style={{ color: tokens.danger, marginTop: 12 }}>{error}</Text> : null}
+        {!ownedHouseholds.length && (
+          <Text style={{ color: tokens.textDim, marginTop: 16 }}>
+            You don&apos;t own any households yet.
+          </Text>
+        )}
         {isLoading ? (
           <Text style={{ color: tokens.textDim, marginTop: 20 }}>Loading household...</Text>
-        ) : (
+        ) : householdId ? (
           <>
             <View style={{ backgroundColor: tokens.surface, borderColor: tokens.line, borderWidth: 1, borderRadius: 12, padding: 16, marginTop: 16 }}>
               <Text style={{ color: tokens.text, fontWeight: "600", marginBottom: 8 }}>Household name</Text>
@@ -247,22 +319,27 @@ export function HouseholdManagementScreen() {
 
             <View style={{ backgroundColor: tokens.surface, borderColor: tokens.line, borderWidth: 1, borderRadius: 12, padding: 16, marginTop: 16 }}>
               <Text style={{ color: tokens.text, fontWeight: "600", marginBottom: 8 }}>Invite someone</Text>
-              <TextInput
-                value={inviteEmail}
-                onChangeText={setInviteEmail}
-                placeholder="name@example.com"
-                placeholderTextColor={tokens.textDim}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                style={{ color: tokens.text, backgroundColor: tokens.bg, borderColor: tokens.line, borderWidth: 1, borderRadius: 8, padding: 10 }}
-              />
-              <TouchableOpacity
-                onPress={sendInvite}
-                disabled={isWorking}
-                style={{ backgroundColor: tokens.accent, borderRadius: 8, padding: 12, alignItems: "center", marginTop: 12, opacity: isWorking ? 0.6 : 1 }}
-              >
-                <Text style={{ color: tokens.onAccent, fontWeight: "600" }}>Send invite</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <TextInput
+                  value={inviteEmail}
+                  onChangeText={setInviteEmail}
+                  placeholder="name@example.com"
+                  placeholderTextColor={tokens.textDim}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  style={{ flex: 1, minWidth: 0, color: tokens.text, backgroundColor: tokens.bg, borderColor: tokens.line, borderWidth: 1, borderRadius: 8, padding: 10 }}
+                />
+                <TouchableOpacity
+                  onPress={sendInvite}
+                  disabled={isWorking || !inviteEmail.trim()}
+                  style={{ alignItems: "center", opacity: isWorking ? 0.6 : 1 }}
+                >
+                  <Text style={{ color: tokens.onAccent, fontWeight: "600" }}>
+                    {isWorking ? "Inviting..." : "Invite"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Text style={{ color: tokens.text, fontSize: 18, fontWeight: "600", marginTop: 24, marginBottom: 8 }}>
@@ -293,9 +370,71 @@ export function HouseholdManagementScreen() {
                 )}
               </View>
             ))}
+
+            {householdId ? (
+              <View style={{ backgroundColor: tokens.surface, borderColor: tokens.danger, borderWidth: 1, borderRadius: 12, padding: 16, marginTop: 28 }}>
+                <Text style={{ color: tokens.danger, fontSize: 18, fontWeight: "700", marginBottom: 8 }}>
+                  Delete household
+                </Text>
+                <Text style={{ color: tokens.textDim, marginBottom: 12 }}>
+                  Deleting this household also permanently deletes its recipes, memberships, and invitations.
+                </Text>
+                <TouchableOpacity
+                  onPress={deleteHousehold}
+                  disabled={isWorking}
+                  style={{ backgroundColor: tokens.danger, borderRadius: 8, padding: 12, alignItems: "center", opacity: isWorking ? 0.6 : 1 }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "600" }}>
+                    Delete household
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </>
-        )}
+        ) : null}
       </ScrollView>
+      <Modal
+        visible={Boolean(householdToDelete)}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          if (!isWorking) setHouseholdToDelete(null);
+        }}
+      >
+        <View style={{ flex: 1, justifyContent: "center", padding: 24, backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <View style={{ backgroundColor: tokens.surface, borderRadius: 16, padding: 20 }}>
+            <Text style={{ color: tokens.text, fontSize: 20, fontWeight: "700", marginBottom: 8 }}>
+              Delete household?
+            </Text>
+            <Text style={{ color: tokens.textDim, lineHeight: 22 }}>
+              Delete &quot;{householdToDelete?.name}&quot; permanently? This also deletes all recipes, members, and invitations associated with it. This cannot be undone.
+            </Text>
+            {error ? (
+              <Text accessibilityRole="alert" style={{ color: tokens.danger, marginTop: 12 }}>
+                {error}
+              </Text>
+            ) : null}
+            <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
+              <TouchableOpacity
+                onPress={() => setHouseholdToDelete(null)}
+                disabled={isWorking}
+                style={{ padding: 12, opacity: isWorking ? 0.6 : 1 }}
+              >
+                <Text style={{ color: tokens.text, fontWeight: "600" }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={confirmDeleteHousehold}
+                disabled={isWorking}
+                style={{ backgroundColor: tokens.danger, borderRadius: 8, padding: 12, opacity: isWorking ? 0.6 : 1 }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>
+                  {isWorking ? "Deleting..." : "Delete household"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

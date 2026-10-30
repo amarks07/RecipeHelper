@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, ScrollView, Image } from "react-native";
 import { supabase } from "@recipehelper/core";
 import { mergeOCRResults, validateMergedRecipe } from "@recipehelper/core/src/recipe-ocr";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 /**
  * Process multiple images sequentially through OCR

@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { attachRecipeImageUrls } from "../utils/recipe-images";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
+
+const BOOK_COLORS = ["#B94E35", "#536CA5", "#9A6B18", "#34754A", "#914E7E"];
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState([]);
@@ -63,6 +66,7 @@ export default function RecipesPage() {
         title: recipe.title,
         description: recipe.description,
         imageUrl: recipe.image_url,
+        sourceUrl: recipe.source_url,
         ingredients: recipe.recipe_ingredients || [],
         instructions: recipe.recipe_instructions || [],
         tags: recipe.recipe_tags?.map((t) => t.tag_name) || [],
@@ -71,7 +75,7 @@ export default function RecipesPage() {
         servings: recipe.servings,
       }));
 
-      setRecipes(transformed);
+      setRecipes(await attachRecipeImageUrls(supabase, transformed));
     } catch (error) {
       console.error("Failed to fetch recipes:", error);
       setLoadError(error.message || "Failed to load recipes.");
@@ -123,9 +127,9 @@ export default function RecipesPage() {
   }
 
   return (
-    <div>
+    <div className="recipes-page">
       {/* Header */}
-      <div style={{ marginBottom: "40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", margin: 0 }}>
           Your Recipes
         </h1>
@@ -149,30 +153,25 @@ export default function RecipesPage() {
       </div>
 
       {/* Search Bar */}
-      <div style={{ marginBottom: "32px" }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
           {households.length > 1 && (
-            <select
-              aria-label="Filter recipes by household"
-              value={selectedHouseholdId}
-              onChange={(event) => setSelectedHouseholdId(event.target.value)}
-              style={{
-                minWidth: 150,
-                padding: "14px 12px",
-                fontSize: "14px",
-                border: "2px solid #e8e4d9",
-                borderRadius: "10px",
-                backgroundColor: "#fefdfb",
-                color: "#111827",
-              }}
-            >
-              <option value="">All households</option>
-              {households.map((household) => (
-                <option key={household.id} value={household.id}>
-                  {household.name}
-                </option>
-              ))}
-            </select>
+            <div className="household-select-field" style={{ minWidth: 180, marginTop: 0 }}>
+              <label htmlFor="recipe-household-filter">Household</label>
+              <select
+                className="app-select"
+                id="recipe-household-filter"
+                value={selectedHouseholdId}
+                onChange={(event) => setSelectedHouseholdId(event.target.value)}
+              >
+                <option value="">All households</option>
+                {households.map((household) => (
+                  <option key={household.id} value={household.id}>
+                    {household.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
           <input
             type="text"
@@ -246,7 +245,7 @@ export default function RecipesPage() {
         }
       `}</style>
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "80px 20px" }}>
+        <div style={{ textAlign: "center", padding: "36px 20px" }}>
           <p style={{ color: "#666", marginBottom: "20px", fontSize: "16px" }}>
             {recipes.length === 0
               ? "No recipes yet. Create one to get started!"
@@ -277,17 +276,19 @@ export default function RecipesPage() {
           className="recipe-grid"
           style={{
             columnCount: 3,
-            columnGap: "24px",
+            columnGap: "16px",
             columnFill: "balance",
           }}
         >
-          {filtered.map((recipe) => (
+          {filtered.map((recipe, index) => (
             <Link
               key={recipe.id}
               href={`/recipes/${recipe.id}`}
+              className="recipe-card"
               style={{
+                "--card-index": Math.min(index, 8),
                 backgroundColor: "#fefdfb",
-                borderRadius: "32px",
+                borderRadius: "24px",
                 border: "2px solid #e8e4d9",
                 overflow: "hidden",
                 transition: "all 0.3s ease",
@@ -296,7 +297,7 @@ export default function RecipesPage() {
                 color: "inherit",
                 boxShadow: "0 4px 12px rgba(74, 222, 128, 0.08)",
                 breakInside: "avoid",
-                marginBottom: "24px",
+                marginBottom: "16px",
                 display: "block",
               }}
               onMouseEnter={(e) => {
@@ -324,13 +325,13 @@ export default function RecipesPage() {
               )}
 
               {/* Content */}
-              <div style={{ padding: "20px" }}>
+              <div style={{ padding: "16px" }}>
                 <h3
                   style={{
                     fontSize: "18px",
                     fontWeight: "700",
                     color: "#111827",
-                    marginBottom: "12px",
+                    marginBottom: "10px",
                     lineHeight: "1.3",
                   }}
                 >
@@ -342,7 +343,7 @@ export default function RecipesPage() {
                     style={{
                       fontSize: "13px",
                       color: "#666",
-                      marginBottom: "14px",
+                      marginBottom: "12px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       display: "-webkit-box",
@@ -356,7 +357,7 @@ export default function RecipesPage() {
                 )}
 
                 {/* Metadata */}
-                <div style={{ display: "flex", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
                   {recipe.ingredients && recipe.ingredients.length > 0 && (
                     <span
                       style={{
@@ -420,6 +421,28 @@ export default function RecipesPage() {
             </Link>
           ))}
         </div>
+      )}
+
+      {recipes.length > 0 && (
+        <section className="recipe-bookshelf" aria-label="Recipe bookshelf">
+          <div className="recipe-book-row">
+            {recipes.map((recipe, index) => (
+              <Link
+                key={recipe.id}
+                href={`/recipes/${recipe.id}`}
+                className="recipe-book"
+                style={{
+                  "--book-color": BOOK_COLORS[index % BOOK_COLORS.length],
+                  "--book-index": Math.min(index, 8),
+                }}
+                aria-label={`Open recipe ${recipe.title}`}
+                title={recipe.title}
+              >
+                <span className="recipe-book-title">{recipe.title}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

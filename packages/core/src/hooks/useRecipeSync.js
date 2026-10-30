@@ -27,6 +27,35 @@ export function useRecipeSync(setRecipes, session, householdRevision = 0) {
 
       if (error) throw error;
 
+      const screenshotPaths = [
+        ...new Set(
+          (data || [])
+            .map((recipe) => recipe.image_url)
+            .filter(
+              (imageUrl) =>
+                imageUrl && !/^[a-z][a-z\d+.-]*:/i.test(imageUrl)
+            )
+        ),
+      ];
+      const signedImages = new Map();
+      if (screenshotPaths.length) {
+        const { data: signedUrls, error: signedUrlError } = await supabase.storage
+          .from('recipe-screenshots')
+          .createSignedUrls(screenshotPaths, 86400);
+        if (signedUrlError) throw signedUrlError;
+        const failedImage = (signedUrls || []).find(
+          (image) => image.error || !image.signedUrl
+        );
+        if (failedImage) {
+          throw new Error(
+            `Failed to load saved screenshot: ${failedImage.error || failedImage.path}`
+          );
+        }
+        (signedUrls || []).forEach((image) => {
+          signedImages.set(image.path, image.signedUrl);
+        });
+      }
+
       // Transform database format to app format
       const recipes = (data || []).map((dbRecipe) => ({
         id: dbRecipe.id,
@@ -35,6 +64,7 @@ export function useRecipeSync(setRecipes, session, householdRevision = 0) {
         title: dbRecipe.title,
         description: dbRecipe.description,
         imageUrl: dbRecipe.image_url,
+        imageDisplayUrl: signedImages.get(dbRecipe.image_url) || dbRecipe.image_url,
         prepTime: dbRecipe.prep_time_minutes,
         cookTime: dbRecipe.cook_time_minutes,
         servings: dbRecipe.servings,

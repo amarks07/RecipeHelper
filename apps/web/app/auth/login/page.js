@@ -104,7 +104,7 @@ export default function LoginPage() {
             nibble
           </h1>
           <p style={{ color: "#666", fontSize: "14px" }}>
-            Welcome back to nibble
+            Welcome back. Your favorite bites are waiting.
           </p>
         </div>
         {/* Google Sign In */}
@@ -251,7 +251,7 @@ export default function LoginPage() {
           Don't have an account?{" "}
           <Link
             href="/auth/signup"
-            style={{ color: "#16a34a", textDecoration: "none", fontWeight: "600" }}
+            style={{ color: "var(--theme-accent)", textDecoration: "none", fontWeight: "600" }}
           >
             Sign up
           </Link>

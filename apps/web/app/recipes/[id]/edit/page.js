@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { inferRecipeTags } from "@recipehelper/core";
@@ -11,13 +11,17 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default function EditRecipePage({ params }) {
+export default function EditRecipePage() {
   const router = useRouter();
+  const routeParams = useParams();
+  const recipeId = routeParams?.id;
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
+    sourceUrl: "",
     prepTime: "",
     cookTime: "",
     servings: "",
@@ -27,10 +31,10 @@ export default function EditRecipePage({ params }) {
   });
 
   useEffect(() => {
-    if (params?.id) {
-      fetchRecipe(params.id);
+    if (recipeId) {
+      fetchRecipe(recipeId);
     }
-  }, [params?.id]);
+  }, [recipeId]);
 
   const fetchRecipe = async (id) => {
     try {
@@ -52,6 +56,7 @@ export default function EditRecipePage({ params }) {
       setForm({
         title: data.title,
         description: data.description || "",
+        sourceUrl: data.source_url || "",
         prepTime: data.prep_time_minutes || "",
         cookTime: data.cook_time_minutes || "",
         servings: data.servings || "",
@@ -71,6 +76,7 @@ export default function EditRecipePage({ params }) {
       });
     } catch (error) {
       console.error("Failed to fetch recipe:", error);
+      setLoadError("We couldn't load this recipe. Please go back and try again.");
     } finally {
       setLoading(false);
     }
@@ -82,6 +88,20 @@ export default function EditRecipePage({ params }) {
       return;
     }
 
+    let sourceUrl = null;
+    if (form.sourceUrl.trim()) {
+      try {
+        const parsedSourceUrl = new URL(form.sourceUrl.trim());
+        if (!["http:", "https:"].includes(parsedSourceUrl.protocol)) {
+          throw new Error("Recipe links must start with http:// or https://.");
+        }
+        sourceUrl = parsedSourceUrl.href;
+      } catch {
+        alert("Enter a valid http:// or https:// recipe link.");
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       // Update recipe
@@ -90,21 +110,26 @@ export default function EditRecipePage({ params }) {
         .update({
           title: form.title,
           description: form.description,
+          source_url: sourceUrl,
           prep_time_minutes: form.prepTime ? parseInt(form.prepTime) : null,
           cook_time_minutes: form.cookTime ? parseInt(form.cookTime) : null,
           servings: form.servings,
         })
-        .eq("id", params.id);
+        .eq("id", recipeId);
 
       if (updateError) throw updateError;
 
       // Delete and re-insert ingredients
-      await supabase.from("recipe_ingredients").delete().eq("recipe_id", params.id);
+      const { error: deleteIngredientsError } = await supabase
+        .from("recipe_ingredients")
+        .delete()
+        .eq("recipe_id", recipeId);
+      if (deleteIngredientsError) throw deleteIngredientsError;
 
       const ingredients = form.ingredients
         .filter((ing) => ing.name.trim())
         .map((ing, idx) => ({
-          recipe_id: params.id,
+          recipe_id: recipeId,
           ingredient: ing.name,
           quantity: ing.quantity ? parseFloat(ing.quantity) : null,
           unit: ing.unit || null,
@@ -119,12 +144,16 @@ export default function EditRecipePage({ params }) {
       }
 
       // Delete and re-insert instructions
-      await supabase.from("recipe_instructions").delete().eq("recipe_id", params.id);
+      const { error: deleteInstructionsError } = await supabase
+        .from("recipe_instructions")
+        .delete()
+        .eq("recipe_id", recipeId);
+      if (deleteInstructionsError) throw deleteInstructionsError;
 
       const instructions = form.instructions
         .filter((instr) => instr.step.trim())
         .map((instr, idx) => ({
-          recipe_id: params.id,
+          recipe_id: recipeId,
           step: instr.step,
           order: idx,
         }));
@@ -150,12 +179,12 @@ export default function EditRecipePage({ params }) {
       const { error: deleteTagsError } = await supabase
         .from("recipe_tags")
         .delete()
-        .eq("recipe_id", params.id);
+        .eq("recipe_id", recipeId);
       if (deleteTagsError) throw deleteTagsError;
 
       if (tags.length > 0) {
         const tagRows = tags.map((tag) => ({
-          recipe_id: params.id,
+          recipe_id: recipeId,
           tag_name: tag,
         }));
 
@@ -163,7 +192,7 @@ export default function EditRecipePage({ params }) {
         if (error) throw error;
       }
 
-      router.push(`/recipes/${params.id}`);
+      router.push(`/recipes/${recipeId}`);
     } catch (error) {
       console.error("Failed to save recipe:", error);
       alert("Failed to save recipe");
@@ -176,11 +205,22 @@ export default function EditRecipePage({ params }) {
     return <p style={{ textAlign: "center", color: "#6b7280" }}>Loading...</p>;
   }
 
+  if (loadError) {
+    return (
+      <div role="alert" style={{ textAlign: "center", padding: "40px 20px" }}>
+        <p style={{ color: "#b91c1c", marginBottom: "20px" }}>{loadError}</p>
+        <Link href="/recipes" style={{ color: "#34754a", fontWeight: "600" }}>
+          Back to recipes
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div style={{ marginBottom: "32px" }}>
         <Link
-          href={`/recipes/${params.id}`}
+          href={`/recipes/${recipeId}`}
           style={{
             color: "#10b981",
             textDecoration: "none",
@@ -235,6 +275,20 @@ export default function EditRecipePage({ params }) {
               fontSize: "14px",
               boxSizing: "border-box",
             }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
+          <label htmlFor="recipe-source-url" style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
+            Recipe link
+          </label>
+          <input
+            id="recipe-source-url"
+            type="url"
+            placeholder="https://..."
+            value={form.sourceUrl}
+            onChange={(event) => setForm({ ...form, sourceUrl: event.target.value })}
+            style={{ width: "100%", boxSizing: "border-box" }}
           />
         </div>
 
@@ -400,6 +454,7 @@ export default function EditRecipePage({ params }) {
               cursor: "pointer",
               fontSize: "14px",
               fontWeight: "600",
+              marginTop: "1rem"
             }}
           >
             + Add Ingredient
@@ -488,7 +543,7 @@ export default function EditRecipePage({ params }) {
         {/* Actions */}
         <div style={{ display: "flex", gap: "12px" }}>
           <Link
-            href={`/recipes/${params.id}`}
+            href={`/recipes/${recipeId}`}
             style={{
               padding: "12px 24px",
               border: "1px solid #e5e7eb",

@@ -8,7 +8,7 @@ import {
 import { X, Plus } from "lucide-react-native";
 import { useState } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../ui/PushableButton";
 
 export function RecipeEditForm({
   initialRecipe,
@@ -459,7 +459,7 @@ export function RecipeEditForm({
               }}
             >
               <Plus size={16} color={tokens.accent} />
-              <Text style={{ color: tokens.accent, fontWeight: "600", fontSize: 12 }}>
+              <Text style={{ color: tokens.accent, fontWeight: "600", fontSize: 12, marginTop: 2 }}>
                 Add Ingredient
               </Text>
             </TouchableOpacity>
@@ -572,7 +572,7 @@ export function RecipeEditForm({
               }}
             >
               <Plus size={16} color={tokens.accent} />
-              <Text style={{ color: tokens.accent, fontWeight: "600", fontSize: 12 }}>
+              <Text style={{ color: tokens.accent, fontWeight: "600", fontSize: 12, marginTop: 2 }}>
                 Add Step
               </Text>
             </TouchableOpacity>

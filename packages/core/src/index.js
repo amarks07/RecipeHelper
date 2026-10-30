@@ -5,6 +5,7 @@ export { useRecipeSearch } from './hooks/useRecipeSearch';
 export { supabase } from './lib/supabase-client';
 export { RECIPES_CODEC } from './codecs/recipes';
 export { inferRecipeTags } from './inferRecipeTags';
+export { sendHouseholdInvite } from './sendHouseholdInvite';
 export {
   mergeOCRResults,
   detectInstructionSequence,

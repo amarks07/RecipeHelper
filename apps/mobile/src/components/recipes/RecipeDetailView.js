@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { ChevronLeft, Edit2, Trash2, Clock, Flame } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../ui/PushableButton";
 
 export function RecipeDetailView({
   recipe,
@@ -60,9 +60,9 @@ export function RecipeDetailView({
         showsVerticalScrollIndicator={false}
       >
         {/* Image */}
-        {recipe.imageUrl && (
+        {(recipe.imageDisplayUrl || recipe.imageUrl) && (
           <Image
-            source={{ uri: recipe.imageUrl }}
+            source={{ uri: recipe.imageDisplayUrl || recipe.imageUrl }}
             style={{ width: "100%", height: 240 }}
           />
         )}

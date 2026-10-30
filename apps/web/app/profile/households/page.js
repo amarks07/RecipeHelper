@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { sendHouseholdInvite } from "@recipehelper/core";
 import { AuthGuard } from "../../components/auth-guard";
 
 const supabase = createClient(
@@ -12,10 +12,10 @@ const supabase = createClient(
 );
 
 function HouseholdManagementContent() {
-  const router = useRouter();
   const [households, setHouseholds] = useState([]);
   const [householdId, setHouseholdId] = useState("");
   const [name, setName] = useState("");
+  const [newHouseholdName, setNewHouseholdName] = useState("");
   const [members, setMembers] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -23,6 +23,7 @@ function HouseholdManagementContent() {
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [householdToDelete, setHouseholdToDelete] = useState(null);
 
   const loadHouseholds = useCallback(async () => {
     setLoading(true);
@@ -47,11 +48,6 @@ function HouseholdManagementContent() {
       return;
     }
     const owned = data || [];
-    if (owned.length === 0) {
-      router.replace("/profile");
-      setLoading(false);
-      return;
-    }
     setHouseholds(owned);
     setHouseholdId((current) =>
       owned.some((household) => household.id === current)
@@ -59,7 +55,7 @@ function HouseholdManagementContent() {
         : owned[0]?.id || ""
     );
     setLoading(false);
-  }, [router]);
+  }, []);
 
   const loadDetails = useCallback(async (id) => {
     if (!id) {
@@ -132,16 +128,68 @@ function HouseholdManagementContent() {
     );
   };
 
+  const createHousehold = async (event) => {
+    event.preventDefault();
+    const householdName = newHouseholdName.trim();
+    setWorking(true);
+    setError("");
+    setNotice("");
+    try {
+      const { data: createdId, error: createError } = await supabase.rpc(
+        "create_household",
+        { household_name: householdName, invited_emails: [] }
+      );
+      if (createError) {
+        setError(createError.message);
+        return;
+      }
+
+      await loadHouseholds();
+      setHouseholdId(createdId);
+      setNewHouseholdName("");
+      setNotice("Household created.");
+    } catch (createError) {
+      setError(createError.message || "Could not create the household.");
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  const deleteHousehold = async () => {
+    const household = householdToDelete;
+    if (!household) return;
+
+    setWorking(true);
+    setError("");
+    setNotice("");
+    try {
+      const { error: deleteError } = await supabase.rpc("delete_household", {
+        target_household_id: householdId,
+      });
+      if (deleteError) {
+        setError(deleteError.message);
+        return;
+      }
+
+      setNotice(`"${household.name}" was deleted.`);
+      setHouseholdToDelete(null);
+      await loadHouseholds();
+    } catch (deleteError) {
+      setError(deleteError.message || "Could not delete the household.");
+    } finally {
+      setWorking(false);
+    }
+  };
+
   const sendInvite = async (event) => {
     event.preventDefault();
     const sent = await runAction(
-      () => supabase.rpc("send_household_invite", {
-        target_household_id: householdId,
-        invitee_email: inviteEmail,
-      }),
+      () => sendHouseholdInvite(supabase, householdId, inviteEmail)
+        .then(() => ({ error: null })),
       "Invitation sent."
     );
     if (sent) setInviteEmail("");
+    else await loadDetails(householdId);
   };
 
   const revokeInvite = async (id) => {
@@ -165,22 +213,48 @@ function HouseholdManagementContent() {
   if (loading) return <p>Loading household management...</p>;
 
   return (
-    <section style={{ maxWidth: 800, margin: "0 auto" }}>
-      <Link href="/profile" style={{ color: "#16a34a" }}>← Profile</Link>
-      <h1>Household management</h1>
+    <section className="theme-content profile-page">
+      <div className="profile-page-header">
+        <Link href="/profile" style={{ color: "#16a34a" }}>← Profile</Link>
+        <h1>Household management</h1>
+      </div>
       {error && <p role="alert" style={{ color: "#b91c1c" }}>{error}</p>}
       {notice && <p role="status" style={{ color: "#15803d" }}>{notice}</p>}
-      {households.length > 0 && (
+
+      <form onSubmit={createHousehold} style={{ marginTop: 24 }}>
+        <h2>{households.length ? "Create another household" : "Create a household"}</h2>
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input
+            aria-label="New household name"
+            value={newHouseholdName}
+            onChange={(event) => setNewHouseholdName(event.target.value)}
+            maxLength={100}
+            placeholder="Household name"
+            required
+            style={{ flex: 1, padding: 10 }}
+          />
+          <button disabled={working || !newHouseholdName.trim()}>Create household</button>
+        </div>
+      </form>
+
+      {households.length === 0 ? (
+        <p style={{ marginTop: 24 }}>You don&apos;t own any households yet.</p>
+      ) : (
         <>
           {households.length > 1 && (
-            <label>
-              Household{" "}
-              <select value={householdId} onChange={(event) => setHouseholdId(event.target.value)}>
+            <div className="household-select-field">
+              <label htmlFor="managed-household">Household</label>
+              <select
+                className="app-select"
+                id="managed-household"
+                value={householdId}
+                onChange={(event) => setHouseholdId(event.target.value)}
+              >
                 {households.map((household) => (
                   <option key={household.id} value={household.id}>{household.name}</option>
                 ))}
               </select>
-            </label>
+            </div>
           )}
 
           <form onSubmit={saveName} style={{ marginTop: 24 }}>
@@ -209,7 +283,7 @@ function HouseholdManagementContent() {
                 required
                 style={{ flex: 1, padding: 10 }}
               />
-              <button disabled={working}>Send invite</button>
+              <button disabled={working}>Invite</button>
             </div>
           </form>
 
@@ -236,7 +310,70 @@ function HouseholdManagementContent() {
               </div>
             ))}
           </div>
+
+          <div className="household-delete-section">
+            <h2>Delete household</h2>
+            <p>
+              Deleting this household also permanently deletes its recipes,
+              memberships, and invitations.
+            </p>
+            <button
+              type="button"
+              className="household-delete-button"
+              disabled={working}
+              onClick={() => setHouseholdToDelete(
+                households.find((item) => item.id === householdId) || null
+              )}
+            >
+              Delete household
+            </button>
+          </div>
         </>
+      )}
+
+      {householdToDelete && (
+        <div
+          className="confirmation-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !working) {
+              setHouseholdToDelete(null);
+            }
+          }}
+        >
+          <section
+            aria-labelledby="delete-household-title"
+            aria-describedby="delete-household-description"
+            aria-modal="true"
+            className="confirmation-modal"
+            role="dialog"
+          >
+            <h2 id="delete-household-title">Delete household?</h2>
+            <p id="delete-household-description">
+              Delete &quot;{householdToDelete.name}&quot; permanently? This also
+              deletes all recipes, members, and invitations associated with it.
+              This cannot be undone.
+            </p>
+            {error && <p role="alert" style={{ color: "#b91c1c" }}>{error}</p>}
+            <div className="confirmation-modal-actions">
+              <button
+                type="button"
+                className="confirmation-cancel-button"
+                disabled={working}
+                onClick={() => setHouseholdToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="household-delete-button"
+                disabled={working}
+                onClick={deleteHousehold}
+              >
+                {working ? "Deleting..." : "Delete household"}
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </section>
   );

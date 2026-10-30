@@ -102,7 +102,7 @@ export default function SignupPage() {
             nibble
           </h1>
           <p style={{ color: "#666", fontSize: "14px" }}>
-            Start managing your recipes
+            Make room for your favorite bites.
           </p>
         </div>
 
@@ -293,7 +293,7 @@ export default function SignupPage() {
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            style={{ color: "#16a34a", textDecoration: "none", fontWeight: "600" }}
+            style={{ color: "var(--theme-accent)", textDecoration: "none", fontWeight: "600" }}
           >
             Sign in
           </Link>

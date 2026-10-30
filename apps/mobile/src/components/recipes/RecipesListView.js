@@ -3,8 +3,9 @@ import { ChevronDown, Search, Plus, Camera } from "lucide-react-native";
 import { useState, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RecipeCard } from "./RecipeCard";
+import { RecipeBookshelf } from "./RecipeBookshelf";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../ui/PushableButton";
 
 export function RecipesListView({
   recipes,
@@ -195,8 +196,9 @@ export function RecipesListView({
             showsHorizontalScrollIndicator={false}
             data={allTags}
             keyExtractor={(tag) => tag}
-            renderItem={({ item: tag }) => {
+            renderItem={({ item: tag, index }) => {
               const isSelected = selectedTags.includes(tag);
+              const tagColor = tokens.palette[index % tokens.palette.length];
               return (
                 <TouchableOpacity
                   onPress={() => {
@@ -210,7 +212,7 @@ export function RecipesListView({
                     backgroundColor: isSelected
                       ? tokens.accent
                       : tokens.bg,
-                    borderColor: tokens.accent,
+                    borderColor: isSelected ? tokens.accent : tagColor,
                     borderWidth: 1,
                     paddingHorizontal: 12,
                     paddingVertical: 6,
@@ -221,7 +223,7 @@ export function RecipesListView({
                   <Text
                     style={{
                       fontSize: 12,
-                      color: isSelected ? tokens.onAccent : tokens.accent,
+                      color: isSelected ? tokens.onAccent : tagColor,
                       fontWeight: "500",
                     }}
                   >
@@ -236,52 +238,58 @@ export function RecipesListView({
       )}
 
       {/* Recipe List */}
-      {filteredRecipes.length === 0 ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 20,
-          }}
-        >
-          <Text
+      <FlatList
+        data={filteredRecipes}
+        keyExtractor={(recipe) => recipe.id}
+        renderItem={({ item: recipe }) => (
+          <RecipeCard
+            recipe={recipe}
+            canDelete={recipe.userId === currentUserId}
+            onPress={() => onSelectRecipe(recipe.id)}
+            onDelete={() => onDeleteRecipe(recipe.id)}
+          />
+        )}
+        ListEmptyComponent={
+          <View
             style={{
-              fontSize: 16,
-              color: tokens.textDim,
-              textAlign: "center",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 20,
             }}
           >
-            {recipes?.length === 0
-              ? "No recipes yet. Create one to get started!"
-              : "No recipes match your search."}
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredRecipes}
-          keyExtractor={(recipe) => recipe.id}
-          renderItem={({ item: recipe }) => (
-            <RecipeCard
-              recipe={recipe}
-              canDelete={recipe.userId === currentUserId}
-              onPress={() => onSelectRecipe(recipe.id)}
-              onDelete={() => onDeleteRecipe(recipe.id)}
-            />
-          )}
-          contentContainerStyle={{
-            padding: 16,
-            paddingBottom: 100,
-          }}
-          scrollEventThrottle={16}
-        />
-      )}
+            <Text
+              style={{
+                fontSize: 16,
+                color: tokens.textDim,
+                textAlign: "center",
+              }}
+            >
+              {recipes?.length === 0
+                ? "No recipes yet. Create one to get started!"
+                : "No recipes match your search."}
+            </Text>
+          </View>
+        }
+        contentContainerStyle={{
+          padding: 16,
+          paddingBottom: 170 + insets.bottom,
+          flexGrow: 1,
+        }}
+        scrollEventThrottle={16}
+      />
+
+      <RecipeBookshelf
+        recipes={recipes}
+        onSelectRecipe={onSelectRecipe}
+        tokens={tokens}
+        bottomInset={insets.bottom}
+      />
 
       {/* Floating Action Buttons */}
       <View
         style={{
           position: "absolute",
-          bottom: 20 + insets.bottom,
+          bottom: 152 + insets.bottom,
           right: 20,
           gap: 12,
         }}

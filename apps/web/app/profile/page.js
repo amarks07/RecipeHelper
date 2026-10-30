@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { AuthGuard } from "../components/auth-guard";
-import { HouseholdProfileLinks } from "../components/HouseholdProfileLinks";
 
 function ProfilePageContent() {
   const router = useRouter();
@@ -51,8 +50,8 @@ function ProfilePageContent() {
   }
 
   return (
-    <div className="theme-content" style={{ maxWidth: "600px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "40px" }}>
+    <div className="theme-content profile-page">
+      <div className="profile-page-header">
         <Link
           href="/recipes"
           style={{
@@ -66,29 +65,30 @@ function ProfilePageContent() {
         >
           ← Back to recipes
         </Link>
-        <h1 style={{ fontSize: "36px", fontWeight: "700", color: "#111827", marginTop: "16px" }}>
-          Profile
-        </h1>
-        <p style={{ color: "#6b7280", marginTop: "8px" }}>
+        <h1>Profile</h1>
+        <p>
           Manage your account and preferences
         </p>
       </div>
 
-      <div
-        style={{
-          backgroundColor: "#fefdfb",
-          borderRadius: "32px",
-          border: "2px solid #e8e4d9",
-          padding: "32px",
-        }}
-      >
+      <section className="profile-app-card">
+        <div>
+          <h2>Use Nibble on mobile</h2>
+          <p>Sync your recipes with the mobile app.</p>
+        </div>
+        <Link className="profile-action-button" href="/">
+          Download Mobile App
+        </Link>
+      </section>
+
+      <div className="profile-account-card">
         {user ? (
           <div>
             <div style={{ marginBottom: "24px" }}>
               <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>
                 Account
               </h2>
-              <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              <p className="profile-secondary-text">
                 {user.email}
               </p>
             </div>
@@ -97,25 +97,14 @@ function ProfilePageContent() {
               <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "12px" }}>
                 Info
               </h2>
-              <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              <p className="profile-secondary-text">
                 Signed in via {user.app_metadata?.provider || "email"}
               </p>
             </div>
 
-            <HouseholdProfileLinks />
-
             <button
               onClick={handleSignOut}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#fee2e2",
-                color: "#991b1b",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "600",
-              }}
+              className="profile-sign-out"
             >
               Sign Out
             </button>
@@ -127,7 +116,7 @@ function ProfilePageContent() {
           </div>
         ) : (
           <div style={{ textAlign: "center" }}>
-            <p style={{ color: "#6b7280", marginBottom: "20px" }}>
+            <p className="profile-secondary-text">
               Not signed in
             </p>
             <Link
@@ -148,35 +137,6 @@ function ProfilePageContent() {
             </Link>
           </div>
         )}
-      </div>
-
-      <div
-        style={{
-          marginTop: "40px",
-          padding: "20px",
-          backgroundColor: "#f5f1e8",
-          borderRadius: "8px",
-          textAlign: "center",
-        }}
-      >
-        <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "12px" }}>
-          Sync your recipes with the mobile app
-        </p>
-        <Link
-          href="/"
-          style={{
-            display: "inline-block",
-            padding: "8px 16px",
-            backgroundColor: "#16a34a",
-            color: "#fff",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontSize: "14px",
-            fontWeight: "600",
-          }}
-        >
-          Download Mobile App
-        </Link>
       </div>
     </div>
   );

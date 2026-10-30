@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppState } from "../../state/AppStateProvider";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase-client";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 export function ProfileSettingsScreen({ navigation }) {
   const insets = useSafeAreaInsets();

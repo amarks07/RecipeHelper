@@ -9,7 +9,7 @@ import {
 import { Camera, Image as ImageIcon, ChevronLeft, X } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../../theme/ThemeProvider";
-import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
+import { PushableButton as TouchableOpacity } from "../../components/ui/PushableButton";
 
 /**
  * Multi-image selection screen for recipe capture
