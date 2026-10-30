@@ -59,7 +59,7 @@ export default function Home() {
   // Android shows install instructions
   if (deviceType === "android") {
     return (
-      <main style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)", padding: "20px" }}>
+      <main className="theme-content" style={{ minHeight: "100vh", background: "linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%)", padding: "20px" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto", paddingTop: "40px" }}>
           <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", marginBottom: "8px" }}>
             nibble
@@ -151,6 +151,7 @@ export default function Home() {
       `}</style>
 
       <main
+        className="theme-content"
         style={{
           minHeight: "100vh",
           display: "flex",
@@ -159,34 +160,11 @@ export default function Home() {
           overflow: "hidden",
         }}
       >
-        {/* Get Started Button - Top Right/Center on mobile */}
-        <Link
-          href="/auth/login"
-          style={{
-            position: "absolute",
-            top: "16px",
-            right: "16px",
-            padding: "10px 24px",
-            backgroundColor: "#16a34a",
-            color: "#fff",
-            borderRadius: "50px",
-            textDecoration: "none",
-            fontWeight: "600",
-            fontSize: "14px",
-            zIndex: 10,
-            transition: "background-color 0.3s",
-          }}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = "#15803d")}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "#16a34a")}
-        >
-          Get Started
-        </Link>
-
         {/* Hero Title */}
         <div className="home-hero">
           <FruitPhysicsLayer fruits={FRUIT_ICONS} />
           <h1
-            className="home-wordmark"
+            className="home-wordmark theme-brand"
             style={{
               fontSize: "clamp(48px, 12vw, 96px)",
               fontWeight: "400",
@@ -201,6 +179,26 @@ export default function Home() {
             nibble
           </h1>
         </div>
+
+        <Link
+          href="/auth/login"
+          style={{
+            alignSelf: "center",
+            margin: "0 auto 40px",
+            padding: "16px 40px",
+            backgroundColor: "#16a34a",
+            color: "#fff",
+            borderRadius: "50px",
+            textDecoration: "none",
+            fontWeight: "600",
+            fontSize: "18px",
+            transition: "background-color 0.3s",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#15803d")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#16a34a")}
+        >
+          Get Started
+        </Link>
 
         {/* Features Sections with Dividers */}
         <div

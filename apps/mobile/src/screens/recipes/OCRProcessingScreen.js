@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, ScrollView, Image } from "react-native";
 import { supabase } from "@recipehelper/core";
 import { mergeOCRResults, validateMergedRecipe } from "@recipehelper/core/src/recipe-ocr";
 import { useTheme } from "../../theme/ThemeProvider";
+import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
 
 /**
  * Process multiple images sequentially through OCR
@@ -284,4 +285,3 @@ export function OCRProcessingScreen({ navigation, route }) {
 }
 
 // Add missing import
-import { TouchableOpacity } from "react-native";

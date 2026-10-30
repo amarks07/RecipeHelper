@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { AuthGuard } from "../components/auth-guard";
+import { HouseholdGuard } from "../components/household-guard";
+import { ProfileNavLink } from "../components/ProfileNavLink";
 
 export default function RecipesLayout({ children }) {
   return (
-    <AuthGuard>
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <HouseholdGuard>
+      <div className="theme-content" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Header */}
       <header
+        className="recipe-header"
         style={{
           backgroundColor: "#fff",
           borderBottom: "2px solid #e8e4d9",
@@ -31,8 +33,10 @@ export default function RecipesLayout({ children }) {
             gap: "16px",
             flexWrap: "wrap",
           }}
+          className="recipe-header-inner"
         >
           <Link
+            className="recipe-wordmark theme-brand"
             href="/recipes"
             style={{
               fontSize: "28px",
@@ -45,7 +49,7 @@ export default function RecipesLayout({ children }) {
             nibble
           </Link>
 
-          <nav style={{ display: "flex", gap: "clamp(16px, 3vw, 32px)", alignItems: "center", flexWrap: "wrap" }}>
+          <nav style={{ display: "flex", gap: "clamp(16px, 3vw, 32px)", alignItems: "center", flexWrap: "wrap", marginLeft: "auto" }}>
             <Link
               href="/recipes"
               style={{
@@ -74,20 +78,7 @@ export default function RecipesLayout({ children }) {
             >
               New Recipe
             </Link>
-            <Link
-              href="/profile"
-              style={{
-                color: "#666",
-                textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "color 0.3s",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = "#16a34a")}
-              onMouseLeave={(e) => (e.target.style.color = "#666")}
-            >
-              Profile
-            </Link>
+            <ProfileNavLink />
           </nav>
         </div>
       </header>
@@ -107,6 +98,7 @@ export default function RecipesLayout({ children }) {
 
       {/* Footer */}
       <footer
+        className="recipe-footer"
         style={{
           backgroundColor: "#fff",
           borderTop: "2px solid #e8e4d9",
@@ -130,6 +122,6 @@ export default function RecipesLayout({ children }) {
         </div>
       </footer>
     </div>
-    </AuthGuard>
+    </HouseholdGuard>
   );
 }

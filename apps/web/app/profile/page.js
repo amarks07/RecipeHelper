@@ -5,11 +5,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { AuthGuard } from "../components/auth-guard";
+import { HouseholdProfileLinks } from "../components/HouseholdProfileLinks";
 
 function ProfilePageContent() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [signOutError, setSignOutError] = useState("");
 
   useEffect(() => {
     const getUser = async () => {
@@ -25,12 +27,19 @@ function ProfilePageContent() {
   }, []);
 
   const handleSignOut = async () => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
-    await supabase.auth.signOut();
-    router.push("/auth/login");
+    setSignOutError("");
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      router.push("/");
+    } catch (error) {
+      console.error("Sign out failed:", error);
+      setSignOutError(error.message || "Failed to sign out");
+    }
   };
 
   if (isLoading) {
@@ -42,7 +51,7 @@ function ProfilePageContent() {
   }
 
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+    <div className="theme-content" style={{ maxWidth: "600px", margin: "0 auto" }}>
       <div style={{ marginBottom: "40px" }}>
         <Link
           href="/recipes"
@@ -93,6 +102,8 @@ function ProfilePageContent() {
               </p>
             </div>
 
+            <HouseholdProfileLinks />
+
             <button
               onClick={handleSignOut}
               style={{
@@ -108,6 +119,11 @@ function ProfilePageContent() {
             >
               Sign Out
             </button>
+            {signOutError && (
+              <p role="alert" style={{ color: "#991b1b", marginTop: "12px" }}>
+                {signOutError}
+              </p>
+            )}
           </div>
         ) : (
           <div style={{ textAlign: "center" }}>

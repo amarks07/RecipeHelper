@@ -20,6 +20,10 @@ export default function FruitPhysicsLayer({ fruits }) {
     const parent = layer.parentElement;
     const logo = parent?.querySelector(".home-wordmark");
     const getStarted = document.querySelector('main > a[href="/auth/login"]');
+    const explicitObstacles = parent?.querySelectorAll(".fruit-physics-obstacle");
+    const obstacleElements = explicitObstacles?.length
+      ? [...explicitObstacles]
+      : [logo, getStarted].filter(Boolean);
     const elements = [...layer.querySelectorAll(".produce-icon")].filter(
       (element) => window.getComputedStyle(element).display !== "none"
     );
@@ -61,18 +65,16 @@ export default function FruitPhysicsLayer({ fruits }) {
       ];
 
       const layerBounds = layer.getBoundingClientRect();
-      obstacles = [logo, getStarted]
-        .filter(Boolean)
-        .map((element) => {
-          const bounds = element.getBoundingClientRect();
-          return Matter.Bodies.rectangle(
-            bounds.left - layerBounds.left + bounds.width / 2,
-            bounds.top - layerBounds.top + bounds.height / 2,
-            bounds.width + 14,
-            bounds.height + 12,
-            { isStatic: true, restitution: 1, friction: 0 }
-          );
-        });
+      obstacles = obstacleElements.map((element) => {
+        const bounds = element.getBoundingClientRect();
+        return Matter.Bodies.rectangle(
+          bounds.left - layerBounds.left + bounds.width / 2,
+          bounds.top - layerBounds.top + bounds.height / 2,
+          bounds.width + 14,
+          bounds.height + 12,
+          { isStatic: true, restitution: 1, friction: 0 }
+        );
+      });
 
       Matter.World.add(engine.world, [...walls, ...obstacles]);
     };

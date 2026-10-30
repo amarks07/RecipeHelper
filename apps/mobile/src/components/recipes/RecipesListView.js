@@ -1,9 +1,10 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity } from "react-native";
-import { Search, Plus, Camera } from "lucide-react-native";
+import { View, Text, FlatList, TextInput, Modal } from "react-native";
+import { ChevronDown, Search, Plus, Camera } from "lucide-react-native";
 import { useState, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RecipeCard } from "./RecipeCard";
 import { useTheme } from "../../theme/ThemeProvider";
+import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
 
 export function RecipesListView({
   recipes,
@@ -11,11 +12,16 @@ export function RecipesListView({
   onSelectRecipe,
   onDeleteRecipe,
   onStartOCR,
+  households = [],
+  selectedHouseholdId,
+  onSelectHousehold,
+  currentUserId,
 }) {
   const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [householdPickerVisible, setHouseholdPickerVisible] = useState(false);
 
   // Get all unique tags from recipes
   const allTags = useMemo(() => {
@@ -41,9 +47,12 @@ export function RecipesListView({
         selectedTags.length === 0 ||
         selectedTags.every((tag) => recipe.tags?.includes(tag));
 
-      return matchesSearch && matchesTags;
+      const matchesHousehold =
+        !selectedHouseholdId || recipe.householdId === selectedHouseholdId;
+
+      return matchesSearch && matchesTags && matchesHousehold;
     });
-  }, [recipes, searchQuery, selectedTags]);
+  }, [recipes, searchQuery, selectedTags, selectedHouseholdId]);
 
   return (
     <View style={{ flex: 1, backgroundColor: tokens.bg, paddingTop: insets.top }}>
@@ -81,21 +90,94 @@ export function RecipesListView({
             gap: 8,
           }}
         >
-          <Search size={18} color={tokens.textDim} />
-          <TextInput
-            placeholder="Search recipes..."
-            placeholderTextColor={tokens.textDim}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={{
-              flex: 1,
-              paddingVertical: 10,
-              color: tokens.text,
-              fontSize: 14,
-            }}
-          />
+          {households.length > 1 && (
+            <TouchableOpacity
+              onPress={() => setHouseholdPickerVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Filter recipes by household"
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 4,
+                paddingRight: 8,
+                borderRightColor: tokens.line,
+                borderRightWidth: 1,
+              }}
+            >
+              <Text
+                numberOfLines={1}
+                style={{ color: tokens.text, fontSize: 13, maxWidth: 110 }}
+              >
+                {households.find((household) => household.id === selectedHouseholdId)?.name || "All"}
+              </Text>
+              <ChevronDown size={16} color={tokens.textDim} />
+            </TouchableOpacity>
+          )}
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <Search size={18} color={tokens.textDim} />
+            <TextInput
+              placeholder="Search recipes..."
+              placeholderTextColor={tokens.textDim}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                color: tokens.text,
+                fontSize: 14,
+              }}
+            />
+          </View>
         </View>
       </View>
+
+      <Modal
+        visible={householdPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setHouseholdPickerVisible(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setHouseholdPickerVisible(false)}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            padding: 24,
+            backgroundColor: "rgba(0,0,0,0.45)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: tokens.surface,
+              borderColor: tokens.line,
+              borderWidth: 1,
+              borderRadius: 12,
+              padding: 8,
+            }}
+          >
+            {[{ id: "", name: "All households" }, ...households].map((household) => (
+              <TouchableOpacity
+                key={household.id || "all"}
+                onPress={() => {
+                  onSelectHousehold(household.id);
+                  setHouseholdPickerVisible(false);
+                }}
+                style={{ padding: 14 }}
+              >
+                <Text
+                  style={{
+                    color: selectedHouseholdId === household.id ? tokens.accent : tokens.text,
+                    fontWeight: selectedHouseholdId === household.id ? "700" : "400",
+                  }}
+                >
+                  {household.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Tag Filter */}
       {allTags.length > 0 && (
@@ -182,6 +264,7 @@ export function RecipesListView({
           renderItem={({ item: recipe }) => (
             <RecipeCard
               recipe={recipe}
+              canDelete={recipe.userId === currentUserId}
               onPress={() => onSelectRecipe(recipe.id)}
               onDelete={() => onDeleteRecipe(recipe.id)}
             />

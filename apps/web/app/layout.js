@@ -1,4 +1,5 @@
 import "./globals.css";
+import ThemeToggle from "./components/ThemeToggle";
 
 export const metadata = {
   title: "Nibble — Save & Organize Your Recipes",
@@ -27,7 +28,10 @@ export default function RootLayout({ children }) {
           }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ThemeToggle />
+      </body>
     </html>
   );
 }

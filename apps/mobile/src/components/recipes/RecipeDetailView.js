@@ -3,16 +3,17 @@ import {
   Text,
   ScrollView,
   Image,
-  TouchableOpacity,
 } from "react-native";
 import { ChevronLeft, Edit2, Trash2, Clock, Flame } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
+import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
 
 export function RecipeDetailView({
   recipe,
   onClose,
   onEdit,
   onDelete,
+  canManage = true,
 }) {
   const { tokens } = useTheme();
 
@@ -42,14 +43,16 @@ export function RecipeDetailView({
         <TouchableOpacity onPress={onClose}>
           <ChevronLeft size={24} color={tokens.text} />
         </TouchableOpacity>
-        <View style={{ flexDirection: "row", gap: 12 }}>
-          <TouchableOpacity onPress={onEdit}>
-            <Edit2 size={20} color={tokens.accent} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onDelete}>
-            <Trash2 size={20} color={tokens.danger} />
-          </TouchableOpacity>
-        </View>
+        {canManage && (
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            <TouchableOpacity onPress={onEdit}>
+              <Edit2 size={20} color={tokens.accent} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onDelete}>
+              <Trash2 size={20} color={tokens.danger} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       <ScrollView

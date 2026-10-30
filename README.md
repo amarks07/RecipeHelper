@@ -52,6 +52,13 @@ Nibble/
 - Performance optimization
 - Mobile and web deployment
 
+### Household sharing
+- Recipes belong to a household and are visible to its members.
+- Users create or join a household before adding recipes; creators can invite people by email.
+- Invitees can accept or decline from Notifications. Household owners can rename their household, manage invitations, and remove members.
+- Users in multiple households can filter recipes by household or view all household recipes.
+- Invitations appear in the app for the matching signed-in email address.
+
 ## Quick Start
 
 ### Prerequisites

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { View, Text, TextInput, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
 
 export function SignupScreen({ navigation }) {
   const insets = useSafeAreaInsets();

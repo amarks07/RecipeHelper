@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { inferRecipeTags } from "@recipehelper/core";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -22,7 +23,7 @@ export default function EditRecipePage({ params }) {
     servings: "",
     ingredients: [],
     instructions: [],
-    tags: "",
+    recipeData: {},
   });
 
   useEffect(() => {
@@ -66,9 +67,7 @@ export default function EditRecipePage({ params }) {
             id: instr.id,
             step: instr.step,
           })),
-        tags: (data.recipe_tags || [])
-          .map((t) => t.tag_name)
-          .join(", "),
+        recipeData: data.recipe_data || {},
       });
     } catch (error) {
       console.error("Failed to fetch recipe:", error);
@@ -130,6 +129,16 @@ export default function EditRecipePage({ params }) {
           order: idx,
         }));
 
+      const tags = inferRecipeTags({
+        ...form,
+        ingredients: form.ingredients
+          .filter((ingredient) => ingredient.name.trim())
+          .map((ingredient) => ingredient.name),
+        instructions: instructions.map((instruction) => instruction.step),
+        prepTime: form.prepTime ? parseInt(form.prepTime) : null,
+        cookTime: form.cookTime ? parseInt(form.cookTime) : null,
+      });
+
       if (instructions.length > 0) {
         const { error } = await supabase
           .from("recipe_instructions")
@@ -138,12 +147,11 @@ export default function EditRecipePage({ params }) {
       }
 
       // Delete and re-insert tags
-      await supabase.from("recipe_tags").delete().eq("recipe_id", params.id);
-
-      const tags = form.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag);
+      const { error: deleteTagsError } = await supabase
+        .from("recipe_tags")
+        .delete()
+        .eq("recipe_id", params.id);
+      if (deleteTagsError) throw deleteTagsError;
 
       if (tags.length > 0) {
         const tagRows = tags.map((tag) => ({
@@ -468,24 +476,13 @@ export default function EditRecipePage({ params }) {
           </button>
         </div>
 
-        {/* Tags */}
         <div style={{ marginBottom: "32px" }}>
           <label style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
-            Tags (comma-separated)
+            Tags are applied automatically
           </label>
-          <input
-            type="text"
-            value={form.tags}
-            onChange={(e) => setForm({ ...form, tags: e.target.value })}
-            style={{
-              width: "100%",
-              padding: "12px 16px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-              fontSize: "14px",
-              boxSizing: "border-box",
-            }}
-          />
+          <p style={{ color: "#6b7280", fontSize: "13px" }}>
+            Relevant tags are refreshed from the recipe details when you save.
+          </p>
         </div>
 
         {/* Actions */}

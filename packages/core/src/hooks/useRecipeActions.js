@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { supabase } from '../lib/supabase-client';
+import { inferRecipeTags } from '../inferRecipeTags';
 
 /**
  * CRUD operations for recipes
@@ -12,8 +13,12 @@ export function useRecipeActions(recipes, setRecipes) {
     async (recipe) => {
       if (!setRecipes) return null;
 
-      const recipeWithId = {
+      const taggedRecipe = {
         ...recipe,
+        tags: inferRecipeTags(recipe),
+      };
+      const recipeWithId = {
+        ...taggedRecipe,
         id: `local_${Date.now()}`, // Temporary ID
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -24,36 +29,41 @@ export function useRecipeActions(recipes, setRecipes) {
 
       // Cloud sync
       if (supabase) {
+        let createdRecipeId = null;
         try {
+          if (!taggedRecipe.householdId) {
+            throw new Error("Choose a household before creating a recipe.");
+          }
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+          if (userError) throw userError;
+          if (!user) throw new Error("Sign in before creating a recipe.");
+
           const { data, error } = await supabase
             .from('recipes')
             .insert({
-              title: recipe.title,
-              description: recipe.description,
-              image_url: recipe.imageUrl,
-              prep_time_minutes: recipe.prepTime,
-              cook_time_minutes: recipe.cookTime,
-              servings: recipe.servings,
-              source_url: recipe.sourceUrl,
-              recipe_data: recipe.recipeData || {},
+              user_id: user.id,
+              household_id: taggedRecipe.householdId,
+              title: taggedRecipe.title,
+              description: taggedRecipe.description,
+              image_url: taggedRecipe.imageUrl,
+              prep_time_minutes: taggedRecipe.prepTime,
+              cook_time_minutes: taggedRecipe.cookTime,
+              servings: taggedRecipe.servings,
+              source_url: taggedRecipe.sourceUrl,
+              recipe_data: taggedRecipe.recipeData || {},
             })
             .select()
             .single();
 
           if (error) throw error;
-
-          // Replace temp ID with real ID
-          setRecipes((prev) =>
-            prev.map((r) =>
-              r.id === recipeWithId.id
-                ? { ...recipeWithId, id: data.id }
-                : r
-            )
-          );
+          createdRecipeId = data.id;
 
           // Insert ingredients
-          if (recipe.ingredients && recipe.ingredients.length > 0) {
-            const ingredientRows = recipe.ingredients.map((ing, idx) => ({
+          if (taggedRecipe.ingredients && taggedRecipe.ingredients.length > 0) {
+            const ingredientRows = taggedRecipe.ingredients.map((ing, idx) => ({
               recipe_id: data.id,
               ingredient: ing.name,
               quantity: ing.quantity,
@@ -61,34 +71,60 @@ export function useRecipeActions(recipes, setRecipes) {
               order: idx,
             }));
 
-            await supabase.from('recipe_ingredients').insert(ingredientRows);
+            const { error: ingredientsError } = await supabase
+              .from('recipe_ingredients')
+              .insert(ingredientRows);
+            if (ingredientsError) throw ingredientsError;
           }
 
           // Insert instructions
-          if (recipe.instructions && recipe.instructions.length > 0) {
-            const instructionRows = recipe.instructions.map((instr, idx) => ({
+          if (taggedRecipe.instructions && taggedRecipe.instructions.length > 0) {
+            const instructionRows = taggedRecipe.instructions.map((instr, idx) => ({
               recipe_id: data.id,
               step: instr,
               order: idx,
             }));
 
-            await supabase.from('recipe_instructions').insert(instructionRows);
+            const { error: instructionsError } = await supabase
+              .from('recipe_instructions')
+              .insert(instructionRows);
+            if (instructionsError) throw instructionsError;
           }
 
           // Insert tags
-          if (recipe.tags && recipe.tags.length > 0) {
-            const tagRows = recipe.tags.map((tag) => ({
+          if (taggedRecipe.tags.length > 0) {
+            const tagRows = taggedRecipe.tags.map((tag) => ({
               recipe_id: data.id,
               tag_name: tag,
             }));
 
-            await supabase.from('recipe_tags').insert(tagRows);
+            const { error: tagsError } = await supabase
+              .from('recipe_tags')
+              .insert(tagRows);
+            if (tagsError) throw tagsError;
           }
 
+          setRecipes((prev) =>
+            prev.map((r) =>
+              r.id === recipeWithId.id
+                ? { ...recipeWithId, id: data.id, userId: user.id }
+                : r
+            )
+          );
           return data;
         } catch (error) {
           console.error('Failed to sync recipe to cloud:', error);
-          // Keep local copy even if sync fails
+          setRecipes((prev) => prev.filter((r) => r.id !== recipeWithId.id));
+          if (createdRecipeId) {
+            const { error: cleanupError } = await supabase
+              .from('recipes')
+              .delete()
+              .eq('id', createdRecipeId);
+            if (cleanupError) {
+              console.error('Failed to clean up incomplete recipe:', cleanupError);
+            }
+          }
+          throw error;
         }
       }
 
@@ -101,11 +137,17 @@ export function useRecipeActions(recipes, setRecipes) {
     async (recipeId, updates) => {
       if (!setRecipes) return;
 
+      const currentRecipe = recipes?.find((recipe) => recipe.id === recipeId);
+      const taggedUpdates = {
+        ...updates,
+        tags: inferRecipeTags({ ...currentRecipe, ...updates }),
+      };
+
       // Optimistic update
       setRecipes((prev) =>
         prev.map((r) =>
           r.id === recipeId
-            ? { ...r, ...updates, updatedAt: new Date().toISOString() }
+            ? { ...r, ...taggedUpdates, updatedAt: new Date().toISOString() }
             : r
         )
       );
@@ -116,21 +158,21 @@ export function useRecipeActions(recipes, setRecipes) {
           const { error } = await supabase
             .from('recipes')
             .update({
-              title: updates.title,
-              description: updates.description,
-              image_url: updates.imageUrl,
-              prep_time_minutes: updates.prepTime,
-              cook_time_minutes: updates.cookTime,
-              servings: updates.servings,
-              source_url: updates.sourceUrl,
-              recipe_data: updates.recipeData,
+              title: taggedUpdates.title,
+              description: taggedUpdates.description,
+              image_url: taggedUpdates.imageUrl,
+              prep_time_minutes: taggedUpdates.prepTime,
+              cook_time_minutes: taggedUpdates.cookTime,
+              servings: taggedUpdates.servings,
+              source_url: taggedUpdates.sourceUrl,
+              recipe_data: taggedUpdates.recipeData,
             })
             .eq('id', recipeId);
 
           if (error) throw error;
 
           // Update ingredients if provided
-          if (updates.ingredients) {
+          if (taggedUpdates.ingredients) {
             // Delete old ingredients
             await supabase
               .from('recipe_ingredients')
@@ -138,7 +180,7 @@ export function useRecipeActions(recipes, setRecipes) {
               .eq('recipe_id', recipeId);
 
             // Insert new ingredients
-            const ingredientRows = updates.ingredients.map((ing, idx) => ({
+            const ingredientRows = taggedUpdates.ingredients.map((ing, idx) => ({
               recipe_id: recipeId,
               ingredient: ing.name,
               quantity: ing.quantity,
@@ -149,13 +191,32 @@ export function useRecipeActions(recipes, setRecipes) {
             await supabase.from('recipe_ingredients').insert(ingredientRows);
           }
 
-          // Similar for instructions and tags...
+          if (taggedUpdates.tags) {
+            const { error: deleteTagsError } = await supabase
+              .from('recipe_tags')
+              .delete()
+              .eq('recipe_id', recipeId);
+
+            if (deleteTagsError) throw deleteTagsError;
+
+            if (taggedUpdates.tags.length > 0) {
+              const tagRows = taggedUpdates.tags.map((tag) => ({
+                recipe_id: recipeId,
+                tag_name: tag,
+              }));
+              const { error: insertTagsError } = await supabase
+                .from('recipe_tags')
+                .insert(tagRows);
+
+              if (insertTagsError) throw insertTagsError;
+            }
+          }
         } catch (error) {
           console.error('Failed to update recipe in cloud:', error);
         }
       }
     },
-    [setRecipes]
+    [recipes, setRecipes]
   );
 
   const deleteRecipe = useCallback(

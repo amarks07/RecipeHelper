@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -10,12 +10,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default function RecipeDetailPage({ params }) {
+export default function RecipeDetailPage() {
   const router = useRouter();
+  const params = useParams();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [servings, setServings] = useState(null);
   const [showPrintView, setShowPrintView] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState("");
 
   useEffect(() => {
     if (params?.id) {
@@ -39,9 +41,15 @@ export default function RecipeDetailPage({ params }) {
         .single();
 
       if (error) throw error;
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError) throw userError;
 
       const transformed = {
         id: data.id,
+        userId: data.user_id,
         title: data.title,
         description: data.description,
         imageUrl: data.image_url,
@@ -54,6 +62,7 @@ export default function RecipeDetailPage({ params }) {
       };
 
       setRecipe(transformed);
+      setCurrentUserId(user?.id || "");
       setServings(transformed.servings);
     } catch (error) {
       console.error("Failed to fetch recipe:", error);
@@ -229,6 +238,7 @@ export default function RecipeDetailPage({ params }) {
             )}
           </div>
 
+          {recipe.userId === currentUserId && (
           <div style={{ display: "flex", gap: "8px" }}>
             <Link
               href={`/recipes/${recipe.id}/edit`}
@@ -260,6 +270,7 @@ export default function RecipeDetailPage({ params }) {
               Delete
             </button>
           </div>
+          )}
         </div>
       </div>
 

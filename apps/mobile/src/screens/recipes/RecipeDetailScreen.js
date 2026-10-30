@@ -5,7 +5,7 @@ import { useRecipeActions } from "@recipehelper/core";
 
 export function RecipeDetailScreen({ navigation, route }) {
   const { recipeId } = route.params || {};
-  const { recipes, setRecipes } = useAppState();
+  const { recipes, setRecipes, user } = useAppState();
   const { getRecipeById, deleteRecipe } = useRecipeActions(recipes, setRecipes);
 
   const recipe = getRecipeById(recipeId);
@@ -38,6 +38,7 @@ export function RecipeDetailScreen({ navigation, route }) {
       onClose={() => navigation.goBack()}
       onEdit={handleEdit}
       onDelete={handleDelete}
+      canManage={recipe?.userId === user?.id}
     />
   );
 }

@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
-import { LogOut, Trash2 } from "lucide-react-native";
+import { View, Text, Alert, ScrollView } from "react-native";
+import { Bell, LogOut, Trash2, Users } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppState } from "../../state/AppStateProvider";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase-client";
+import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
 
-export function ProfileSettingsScreen() {
+export function ProfileSettingsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
-  const { user, handleSignOut } = useAppState();
+  const { user, households, pendingInvitations, handleSignOut } = useAppState();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -71,7 +72,10 @@ export function ProfileSettingsScreen() {
         paddingBottom: insets.bottom,
       }}
     >
-      <View style={{ flex: 1, padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        showsVerticalScrollIndicator={false}
+      >
       {/* Header */}
       <Text
         style={{
@@ -189,6 +193,55 @@ export function ProfileSettingsScreen() {
         </View>
       </View>
 
+      <View style={{ marginBottom: 20 }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("HouseholdNotifications")}
+          style={{
+            backgroundColor: tokens.surface,
+            borderColor: tokens.line,
+            borderWidth: 1,
+            borderRadius: 8,
+            padding: 14,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+          }}
+        >
+          <Bell size={18} color={tokens.accent} />
+          <Text style={{ color: tokens.text, fontWeight: "600", flex: 1 }}>
+            Notifications
+          </Text>
+          {pendingInvitations.length > 0 && (
+            <View style={{ backgroundColor: tokens.danger, borderRadius: 10, paddingHorizontal: 7, paddingVertical: 2 }}>
+              <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>
+                {pendingInvitations.length}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+        {households.some((household) => household.owner_id === user?.id) && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("HouseholdManagement")}
+            style={{
+              backgroundColor: tokens.surface,
+              borderColor: tokens.line,
+              borderWidth: 1,
+              borderRadius: 8,
+              padding: 14,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <Users size={18} color={tokens.accent} />
+            <Text style={{ color: tokens.text, fontWeight: "600" }}>
+              Manage household
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {/* Sign Out Button */}
       <TouchableOpacity
         onPress={handleLogout}
@@ -265,10 +318,10 @@ export function ProfileSettingsScreen() {
           }}
         >
           <Text style={{ fontWeight: "600" }}>Tip:</Text> Your recipes are protected by
-          Supabase's Row Level Security. Only you can access your data.
+          Supabase&apos;s Row Level Security. Household recipes are shared only with household members.
         </Text>
       </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }

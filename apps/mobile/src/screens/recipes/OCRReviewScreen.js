@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   Alert,
   TextInput,
   Image,
@@ -17,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppState } from "../../state/AppStateProvider";
 import { useRecipeActions } from "@recipehelper/core";
 import { useTheme } from "../../theme/ThemeProvider";
+import { SketchButton as TouchableOpacity } from "../../components/ui/SketchButton";
 
 /**
  * Review and edit merged OCR results before saving
@@ -26,7 +26,13 @@ export function OCRReviewScreen({ navigation, route }) {
   const { mergedRecipe, validation, imageCount, images } = route.params || {};
   const insets = useSafeAreaInsets();
   const { tokens } = useTheme();
-  const { recipes, setRecipes } = useAppState();
+  const {
+    recipes,
+    setRecipes,
+    households,
+    selectedHouseholdId,
+    setSelectedHouseholdId,
+  } = useAppState();
   const { createRecipe } = useRecipeActions(recipes, setRecipes);
   const [isSaving, setIsSaving] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
@@ -38,7 +44,6 @@ export function OCRReviewScreen({ navigation, route }) {
     description: "",
     ingredients: mergedRecipe?.ingredients || [],
     instructions: mergedRecipe?.instructions || [],
-    tags: [],
     prepTime: mergedRecipe?.prepTime,
     cookTime: mergedRecipe?.cookTime,
     servings: mergedRecipe?.servings,
@@ -54,12 +59,15 @@ export function OCRReviewScreen({ navigation, route }) {
 
     setIsSaving(true);
     try {
-      await createRecipe(editedRecipe);
+      await createRecipe({
+        ...editedRecipe,
+        householdId: selectedHouseholdId || households[0]?.id,
+      });
       Alert.alert("Success", "Recipe saved successfully!");
       navigation.navigate("RecipeList");
     } catch (error) {
       console.error("Failed to save recipe:", error);
-      Alert.alert("Error", "Failed to save recipe. Please try again.");
+      Alert.alert("Error", error.message || "Failed to save recipe. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -104,6 +112,36 @@ export function OCRReviewScreen({ navigation, route }) {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: tokens.textDim, fontSize: 14, fontWeight: "600", marginBottom: 8 }}>
+              Save to household
+            </Text>
+            {households.length > 1 ? (
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {households.map((household) => (
+                  <TouchableOpacity
+                    key={household.id}
+                    onPress={() => setSelectedHouseholdId(household.id)}
+                    style={{
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: selectedHouseholdId === household.id ? tokens.accent : tokens.line,
+                      backgroundColor: selectedHouseholdId === household.id ? tokens.accent : tokens.surface,
+                    }}
+                  >
+                    <Text style={{ color: selectedHouseholdId === household.id ? tokens.onAccent : tokens.text }}>
+                      {household.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <Text style={{ color: tokens.text }}>{households[0]?.name || ""}</Text>
+            )}
+          </View>
+
           {/* Image Tiles */}
         {images && images.length > 0 && (
           <View style={{ marginBottom: 20 }}>
@@ -121,6 +159,7 @@ export function OCRReviewScreen({ navigation, route }) {
               {images.map((image, idx) => (
                 <TouchableOpacity
                   key={idx}
+                  sketch={false}
                   onPress={() => {
                     setSelectedImageIndex(idx);
                     setImageViewerVisible(true);

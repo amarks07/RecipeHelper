@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { getDeviceType } from "../../utils/device-detection";
+import FruitPhysicsLayer from "../../components/FruitPhysicsLayer";
+import GoogleLogo from "../../components/GoogleLogo";
+
+const FRUIT_ICONS = [
+  "fig", "lemon", "pear", "red-apple", "tomato", "cherries", "yellow-pear",
+  "blueberries", "watermelon", "peach", "pomegranate", "strawberry",
+  "avocado", "pineapple", "grapes", "green-apple", "plum", "orange",
+];
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -68,10 +76,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+    <main className="login-page theme-content">
+      <FruitPhysicsLayer fruits={FRUIT_ICONS} />
       <div style={{ maxWidth: "420px", width: "100%", minWidth: "280px" }}>
-        <div style={{ marginBottom: "40px", textAlign: "center" }}>
+        <form
+          className="login-card fruit-physics-obstacle"
+          onSubmit={handleLogin}
+          style={{
+            borderRadius: "32px",
+            border: "2px solid #e8e4d9",
+            padding: "40px",
+            boxShadow: "0 4px 20px rgba(74, 222, 128, 0.1)",
+          }}
+        >
+        <div style={{ marginBottom: "32px", textAlign: "center" }}>
           <h1
+            className="home-wordmark theme-brand"
             style={{
               fontSize: "36px",
               fontWeight: "400",
@@ -87,19 +107,9 @@ export default function LoginPage() {
             Welcome back to nibble
           </p>
         </div>
-
-        <form
-          onSubmit={handleLogin}
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: "32px",
-            border: "2px solid #e8e4d9",
-            padding: "40px",
-            boxShadow: "0 4px 20px rgba(74, 222, 128, 0.1)",
-          }}
-        >
         {/* Google Sign In */}
         <button
+          className="google-signin"
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isLoading}
@@ -120,7 +130,8 @@ export default function LoginPage() {
           onMouseEnter={(e) => (e.target.style.backgroundColor = "#dcfce7")}
           onMouseLeave={(e) => (e.target.style.backgroundColor = "#f0fdf4")}
         >
-          {isLoading ? "…" : "Continue with Google"}
+          <GoogleLogo />
+          <span>{isLoading ? "…" : "Continue with Google"}</span>
         </button>
 
         {/* Divider */}
@@ -247,6 +258,6 @@ export default function LoginPage() {
         </div>
       </form>
       </div>
-    </div>
+    </main>
   );
 }

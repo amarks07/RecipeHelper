@@ -11,15 +11,20 @@ const supabase = createClient(
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState([]);
+  const [households, setHouseholds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedHouseholdId, setSelectedHouseholdId] = useState("");
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     fetchRecipes();
   }, []);
 
   const fetchRecipes = async () => {
+    setLoading(true);
+    setLoadError("");
     try {
       const {
         data: { session },
@@ -29,6 +34,13 @@ export default function RecipesPage() {
         setLoading(false);
         return;
       }
+
+      const { data: householdData, error: householdError } = await supabase
+        .from("households")
+        .select("id, name")
+        .order("name");
+      if (householdError) throw householdError;
+      setHouseholds(householdData || []);
 
       const { data, error } = await supabase
         .from("recipes")
@@ -40,7 +52,6 @@ export default function RecipesPage() {
           recipe_tags(*)
         `
         )
-        .eq("user_id", session.user.id)
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
@@ -48,6 +59,7 @@ export default function RecipesPage() {
       // Transform data
       const transformed = (data || []).map((recipe) => ({
         id: recipe.id,
+        householdId: recipe.household_id,
         title: recipe.title,
         description: recipe.description,
         imageUrl: recipe.image_url,
@@ -62,6 +74,7 @@ export default function RecipesPage() {
       setRecipes(transformed);
     } catch (error) {
       console.error("Failed to fetch recipes:", error);
+      setLoadError(error.message || "Failed to load recipes.");
     } finally {
       setLoading(false);
     }
@@ -86,13 +99,25 @@ export default function RecipesPage() {
       selectedTags.length === 0 ||
       selectedTags.every((tag) => recipe.tags?.includes(tag));
 
-    return matchesSearch && matchesTags;
+    const matchesHousehold =
+      !selectedHouseholdId || recipe.householdId === selectedHouseholdId;
+
+    return matchesSearch && matchesTags && matchesHousehold;
   });
 
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "40px 20px" }}>
         <p style={{ color: "#6b7280" }}>Loading recipes...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div role="alert" style={{ textAlign: "center", padding: "40px 20px" }}>
+        <p style={{ color: "#b91c1c" }}>{loadError}</p>
+        <button onClick={fetchRecipes}>Try again</button>
       </div>
     );
   }
@@ -125,13 +150,38 @@ export default function RecipesPage() {
 
       {/* Search Bar */}
       <div style={{ marginBottom: "32px" }}>
-        <input
-          type="text"
-          placeholder="Search recipes..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          {households.length > 1 && (
+            <select
+              aria-label="Filter recipes by household"
+              value={selectedHouseholdId}
+              onChange={(event) => setSelectedHouseholdId(event.target.value)}
+              style={{
+                minWidth: 150,
+                padding: "14px 12px",
+                fontSize: "14px",
+                border: "2px solid #e8e4d9",
+                borderRadius: "10px",
+                backgroundColor: "#fefdfb",
+                color: "#111827",
+              }}
+            >
+              <option value="">All households</option>
+              {households.map((household) => (
+                <option key={household.id} value={household.id}>
+                  {household.name}
+                </option>
+              ))}
+            </select>
+          )}
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           style={{
             width: "100%",
+            flex: 1,
             padding: "14px 18px",
             fontSize: "15px",
             border: "2px solid #e8e4d9",
@@ -145,7 +195,8 @@ export default function RecipesPage() {
           }}
           onFocus={(e) => (e.target.style.borderColor = "#16a34a")}
           onBlur={(e) => (e.target.style.borderColor = "#e8e4d9")}
-        />
+          />
+        </div>
       </div>
 
       {/* Tag Filter */}

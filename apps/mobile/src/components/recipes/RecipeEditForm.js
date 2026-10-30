@@ -3,18 +3,20 @@ import {
   Text,
   ScrollView,
   TextInput,
-  TouchableOpacity,
   Switch,
 } from "react-native";
 import { X, Plus } from "lucide-react-native";
 import { useState } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
+import { SketchButton as TouchableOpacity } from "../ui/SketchButton";
 
 export function RecipeEditForm({
   initialRecipe,
   onSave,
   onCancel,
   isSaving,
+  households = [],
+  selectedHouseholdId,
 }) {
   const { tokens } = useTheme();
   const [form, setForm] = useState(
@@ -26,7 +28,7 @@ export function RecipeEditForm({
       servings: "",
       ingredients: [],
       instructions: [],
-      tags: [],
+      householdId: selectedHouseholdId || households[0]?.id || "",
     }
   );
 
@@ -37,7 +39,6 @@ export function RecipeEditForm({
   });
 
   const [newInstruction, setNewInstruction] = useState("");
-  const [newTag, setNewTag] = useState("");
 
   const handleSave = () => {
     if (!form.title.trim()) {
@@ -49,6 +50,7 @@ export function RecipeEditForm({
       ...form,
       title: form.title.trim(),
       description: form.description.trim(),
+      householdId: form.householdId || selectedHouseholdId || households[0]?.id,
     });
   };
 
@@ -92,24 +94,6 @@ export function RecipeEditForm({
     setForm((prev) => ({
       ...prev,
       instructions: prev.instructions.filter((_, i) => i !== idx),
-    }));
-  };
-
-  const addTag = () => {
-    if (!newTag.trim()) return;
-
-    setForm((prev) => ({
-      ...prev,
-      tags: [...prev.tags, newTag.trim().toLowerCase()],
-    }));
-
-    setNewTag("");
-  };
-
-  const removeTag = (idx) => {
-    setForm((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((_, i) => i !== idx),
     }));
   };
 
@@ -180,6 +164,49 @@ export function RecipeEditForm({
               textAlignVertical: "top",
             }}
           />
+        </View>
+
+        {/* Household */}
+        <View style={{ marginBottom: 16 }}>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "600",
+              color: tokens.textDim,
+              marginBottom: 8,
+            }}
+          >
+            Household
+          </Text>
+          {households.length > 1 ? (
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {households.map((household) => {
+                const isSelected = (form.householdId || selectedHouseholdId) === household.id;
+                return (
+                  <TouchableOpacity
+                    key={household.id}
+                    onPress={() => setForm((prev) => ({ ...prev, householdId: household.id }))}
+                    style={{
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: isSelected ? tokens.accent : tokens.line,
+                      backgroundColor: isSelected ? tokens.accent : tokens.surface,
+                    }}
+                  >
+                    <Text style={{ color: isSelected ? tokens.onAccent : tokens.text }}>
+                      {household.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : (
+            <Text style={{ color: tokens.text }}>
+              {households[0]?.name || ""}
+            </Text>
+          )}
         </View>
 
         {/* Times & Servings */}
@@ -552,86 +579,6 @@ export function RecipeEditForm({
           </View>
         </View>
 
-        {/* Tags */}
-        <View style={{ marginBottom: 16 }}>
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "600",
-              color: tokens.textDim,
-              marginBottom: 8,
-            }}
-          >
-            Tags
-          </Text>
-
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
-            {form.tags.map((tag, idx) => (
-              <View
-                key={idx}
-                style={{
-                  backgroundColor: tokens.accent + "20",
-                  paddingHorizontal: 10,
-                  paddingVertical: 6,
-                  borderRadius: 6,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: tokens.accent,
-                    fontWeight: "500",
-                  }}
-                >
-                  {tag}
-                </Text>
-                <TouchableOpacity onPress={() => removeTag(idx)}>
-                  <X size={14} color={tokens.accent} />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 8,
-            }}
-          >
-            <TextInput
-              placeholder="Add tag (e.g., vegan, quick)..."
-              placeholderTextColor={tokens.textDim}
-              value={newTag}
-              onChangeText={setNewTag}
-              style={{
-                flex: 1,
-                backgroundColor: tokens.surface,
-                borderColor: tokens.line,
-                borderWidth: 1,
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 10,
-                color: tokens.text,
-                fontSize: 12,
-              }}
-            />
-
-            <TouchableOpacity
-              onPress={addTag}
-              style={{
-                backgroundColor: tokens.accent,
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                justifyContent: "center",
-              }}
-            >
-              <Plus size={18} color={tokens.onAccent} />
-            </TouchableOpacity>
-          </View>
-        </View>
       </ScrollView>
 
       {/* Action Buttons */}

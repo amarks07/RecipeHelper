@@ -4,6 +4,7 @@ import { corsHeaders } from "../_shared/cors.ts";
 
 interface SaveRecipeRequest {
   ocrImportId: string;
+  householdId: string;
   title: string;
   servings?: string;
   prepTime?: number;
@@ -50,9 +51,9 @@ serve(async (req: Request) => {
 
     const body = (await req.json()) as SaveRecipeRequest;
 
-    if (!body.title || !body.ingredients || !body.instructions) {
+    if (!body.householdId || !body.title || !body.ingredients || !body.instructions) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: title, ingredients, instructions" }),
+        JSON.stringify({ error: "Missing required fields: householdId, title, ingredients, instructions" }),
         { status: 400, headers: corsHeaders }
       );
     }
@@ -70,11 +71,29 @@ serve(async (req: Request) => {
       );
     }
 
+    const { data: membership, error: membershipError } = await supabase
+      .from("household_members")
+      .select("household_id")
+      .eq("household_id", body.householdId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (membershipError) {
+      throw new Error(`Failed to verify household membership: ${membershipError.message}`);
+    }
+    if (!membership) {
+      return new Response(
+        JSON.stringify({ error: "You must belong to this household to save a recipe" }),
+        { status: 403, headers: corsHeaders }
+      );
+    }
+
     // Create recipe in database
     const { data: recipe, error: recipeError } = await supabase
       .from("recipes")
       .insert({
         user_id: user.id,
+        household_id: body.householdId,
         title: body.title,
         servings: body.servings,
         prep_time_minutes: body.prepTime,

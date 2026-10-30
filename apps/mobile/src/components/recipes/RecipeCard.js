@@ -1,8 +1,9 @@
 import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { ChefHat, Flame, Clock, Trash2 } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
+import { SketchButton } from "../ui/SketchButton";
 
-export function RecipeCard({ recipe, onPress, onDelete }) {
+export function RecipeCard({ recipe, onPress, onDelete, canDelete = true }) {
   const { tokens } = useTheme();
 
   const ingredientCount = recipe.ingredients?.length || 0;
@@ -101,13 +102,14 @@ export function RecipeCard({ recipe, onPress, onDelete }) {
           )}
         </View>
 
-        {/* Delete Button */}
-        <TouchableOpacity
-          onPress={handleDelete}
-          style={{ padding: 4, marginLeft: 8 }}
-        >
-          <Trash2 size={18} color={tokens.danger} />
-        </TouchableOpacity>
+        {canDelete && (
+          <TouchableOpacity
+            onPress={handleDelete}
+            style={{ padding: 4, marginLeft: 8 }}
+          >
+            <Trash2 size={18} color={tokens.danger} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {recipe.tags && recipe.tags.length > 0 && (

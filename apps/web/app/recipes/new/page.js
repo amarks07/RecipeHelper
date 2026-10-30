@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { inferRecipeTags } from "@recipehelper/core";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -13,13 +14,37 @@ const supabase = createClient(
 export default function NewRecipePage() {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+  const [households, setHouseholds] = useState([]);
+  const [householdId, setHouseholdId] = useState("");
+  const [loadError, setLoadError] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
     ingredients: [{ name: "", quantity: "", unit: "" }],
     instructions: [""],
-    tags: "",
   });
+
+  useEffect(() => {
+    let active = true;
+    const loadHouseholds = async () => {
+      const { data, error } = await supabase
+        .from("households")
+        .select("id, name")
+        .order("name");
+      if (error) {
+        if (active) setLoadError(error.message);
+        return;
+      }
+      if (active) {
+        setHouseholds(data || []);
+        setHouseholdId(data?.[0]?.id || "");
+      }
+    };
+    loadHouseholds();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSave = async () => {
     const {
@@ -36,6 +61,10 @@ export default function NewRecipePage() {
       alert("Recipe title is required");
       return;
     }
+    if (!householdId) {
+      setLoadError("Choose a household before creating a recipe.");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -44,6 +73,7 @@ export default function NewRecipePage() {
         .from("recipes")
         .insert({
           user_id: session.user.id,
+          household_id: householdId,
           title: form.title,
           description: form.description,
         })
@@ -87,10 +117,16 @@ export default function NewRecipePage() {
       }
 
       // Add tags
-      const tags = form.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag);
+      const tags = inferRecipeTags({
+        title: form.title,
+        description: form.description,
+        ingredients: form.ingredients
+          .filter((ingredient) => ingredient.name.trim())
+          .map((ingredient) => ingredient.name),
+        instructions: form.instructions.filter((instruction) => instruction.trim()),
+        prepTime: form.prepTime,
+        cookTime: form.cookTime,
+      });
 
       if (tags.length > 0) {
         const tagRows = tags.map((tag) => ({
@@ -132,6 +168,32 @@ export default function NewRecipePage() {
         <h1 style={{ fontSize: "36px", fontWeight: "700", color: "#111827", marginTop: "16px" }}>
           Create Recipe
         </h1>
+      </div>
+
+      {/* Household */}
+      <div style={{ marginBottom: "20px" }}>
+        <label htmlFor="recipe-household" style={{ display: "block", fontWeight: "600", marginBottom: "6px", color: "#111827" }}>
+          Household
+        </label>
+        <select
+          id="recipe-household"
+          value={householdId}
+          onChange={(event) => setHouseholdId(event.target.value)}
+          required
+          style={{
+            width: "100%",
+            padding: "12px 16px",
+            border: "1px solid #e8e4d9",
+            borderRadius: "8px",
+            fontSize: "14px",
+            backgroundColor: "#fefdfb",
+          }}
+        >
+          {households.map((household) => (
+            <option key={household.id} value={household.id}>{household.name}</option>
+          ))}
+        </select>
+        {loadError && <p role="alert" style={{ color: "#b91c1c" }}>{loadError}</p>}
       </div>
 
       <div style={{ maxWidth: "800px" }}>
@@ -364,27 +426,14 @@ export default function NewRecipePage() {
           </button>
         </div>
 
-        {/* Tags */}
+        {/* Automatic Tags */}
         <div style={{ marginBottom: "32px" }}>
           <label style={{ display: "block", fontWeight: "600", marginBottom: "6px", color: "#111827" }}>
-            Tags (comma-separated)
+            Tags are applied automatically
           </label>
-          <input
-            type="text"
-            placeholder="e.g., vegan, quick, breakfast"
-            value={form.tags}
-            onChange={(e) => setForm({ ...form, tags: e.target.value })}
-            style={{
-              width: "100%",
-              padding: "12px 16px",
-              border: "1px solid #e8e4d9",
-              borderRadius: "8px",
-              fontSize: "14px",
-              boxSizing: "border-box",
-              backgroundColor: "#fefdfb",
-              caretColor: "#111827",
-            }}
-          />
+          <p style={{ color: "#6b7280", fontSize: "13px", margin: "0 0 12px" }}>
+            We use the recipe title, ingredients, and instructions to identify relevant tags when you save.
+          </p>
         </div>
 
         {/* Actions */}

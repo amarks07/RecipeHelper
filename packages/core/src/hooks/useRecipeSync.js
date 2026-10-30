@@ -7,7 +7,7 @@ const SYNC_DEBOUNCE_MS = 1500;
  * Cloud synchronization for recipes
  * Follows Barrow's pattern: debounced sync, conflict resolution (last-write-wins)
  */
-export function useRecipeSync(setRecipes, session) {
+export function useRecipeSync(setRecipes, session, householdRevision = 0) {
   const syncTimeoutRef = useRef(null);
   const lastSyncRef = useRef(0);
 
@@ -30,6 +30,8 @@ export function useRecipeSync(setRecipes, session) {
       // Transform database format to app format
       const recipes = (data || []).map((dbRecipe) => ({
         id: dbRecipe.id,
+        userId: dbRecipe.user_id,
+        householdId: dbRecipe.household_id,
         title: dbRecipe.title,
         description: dbRecipe.description,
         imageUrl: dbRecipe.image_url,
@@ -56,7 +58,7 @@ export function useRecipeSync(setRecipes, session) {
     } catch (error) {
       console.error('Failed to sync recipes from cloud:', error);
     }
-  }, [session, setRecipes]);
+  }, [session, setRecipes, householdRevision]);
 
   const debouncedSync = useCallback(() => {
     if (syncTimeoutRef.current) {

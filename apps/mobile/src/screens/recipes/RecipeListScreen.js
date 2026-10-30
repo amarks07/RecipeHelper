@@ -1,10 +1,20 @@
 import { View } from "react-native";
 import { RecipesListView } from "../../components/recipes/RecipesListView";
 import { useAppState } from "../../state/AppStateProvider";
-import { useRecipeActions } from "@recipehelper/core";
+import { useRecipeActions, useRecipeSync } from "@recipehelper/core";
 
 export function RecipeListScreen({ navigation }) {
-  const { recipes, setRecipes } = useAppState();
+  const {
+    recipes,
+    setRecipes,
+    session,
+    households,
+    selectedHouseholdId,
+    setSelectedHouseholdId,
+    user,
+    householdRevision,
+  } = useAppState();
+  useRecipeSync(setRecipes, session, householdRevision);
   const { deleteRecipe } = useRecipeActions(recipes, setRecipes);
 
   const handleAddRecipe = () => {
@@ -30,6 +40,10 @@ export function RecipeListScreen({ navigation }) {
       onSelectRecipe={handleSelectRecipe}
       onDeleteRecipe={handleDeleteRecipe}
       onStartOCR={handleStartOCR}
+      households={households}
+      selectedHouseholdId={selectedHouseholdId}
+      onSelectHousehold={setSelectedHouseholdId}
+      currentUserId={user?.id}
     />
   );
 }

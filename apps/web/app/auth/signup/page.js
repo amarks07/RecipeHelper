@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { getDeviceType } from "../../utils/device-detection";
+import GoogleLogo from "../../components/GoogleLogo";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -84,10 +85,11 @@ export default function SignupPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+    <div className="theme-content" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
       <div style={{ maxWidth: "420px", width: "100%", minWidth: "280px" }}>
         <div style={{ marginBottom: "40px", textAlign: "center" }}>
           <h1
+            className="theme-brand"
             style={{
               fontSize: "36px",
               fontWeight: "400",
@@ -105,6 +107,7 @@ export default function SignupPage() {
         </div>
 
         <form
+          className="login-card"
           onSubmit={handleSignup}
           style={{
             backgroundColor: "#fff",
@@ -116,6 +119,7 @@ export default function SignupPage() {
         >
         {/* Google Sign Up */}
         <button
+          className="google-signin"
           type="button"
           onClick={handleGoogleSignUp}
           disabled={isLoading}
@@ -136,7 +140,8 @@ export default function SignupPage() {
           onMouseEnter={(e) => (e.target.style.backgroundColor = "#dcfce7")}
           onMouseLeave={(e) => (e.target.style.backgroundColor = "#f0fdf4")}
         >
-          {isLoading ? "…" : "Continue with Google"}
+          <GoogleLogo />
+          <span>{isLoading ? "…" : "Continue with Google"}</span>
         </button>
 
         {/* Divider */}

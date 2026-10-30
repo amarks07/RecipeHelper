@@ -5,7 +5,7 @@ import { useRecipeActions } from "@recipehelper/core";
 
 export function RecipeEditScreen({ navigation, route }) {
   const { recipeId } = route.params || {};
-  const { recipes, setRecipes } = useAppState();
+  const { recipes, setRecipes, households, selectedHouseholdId } = useAppState();
   const { createRecipe, updateRecipe, getRecipeById } = useRecipeActions(recipes, setRecipes);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -22,7 +22,7 @@ export function RecipeEditScreen({ navigation, route }) {
       navigation.goBack();
     } catch (error) {
       console.error("Failed to save recipe:", error);
-      alert("Failed to save recipe. Please try again.");
+      alert(error.message || "Failed to save recipe. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -34,6 +34,8 @@ export function RecipeEditScreen({ navigation, route }) {
       onSave={handleSave}
       onCancel={() => navigation.goBack()}
       isSaving={isSaving}
+      households={households}
+      selectedHouseholdId={selectedHouseholdId}
     />
   );
 }
